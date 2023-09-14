@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "175708275752",
+    "project_id": "aaz-servicos",
+    "storage_bucket": "aaz-servicos.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175708275752:android:8472efb36926205304611d",
+        "android_client_info": {
+          "package_name": "com.example.aaz_servicos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDF53mBVWo4i0OX3zl1JQbQO5HmxUdCUAA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
