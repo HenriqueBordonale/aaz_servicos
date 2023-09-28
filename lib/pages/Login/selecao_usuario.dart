@@ -23,12 +23,12 @@ class selecao_usuario extends StatelessWidget {
         child: ListView(
           children: <Widget>[
             SizedBox(
-              width: 160,
-              height: 160,
+              width: 204,
+              height: 204,
               child: Image.asset("assets/images/LogoT.png"),
             ),
             const SizedBox(
-              height: 40,
+              height: 10,
             ),
             Container(
               child: const Center(
@@ -38,7 +38,8 @@ class selecao_usuario extends StatelessWidget {
                   style: TextStyle(
                     fontFamily: 'Roboto-Regular',
                     color: Color.fromARGB(255, 234, 234, 234),
-                    fontSize: 28,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
@@ -66,7 +67,7 @@ class selecao_usuario extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const login(),
+                      builder: (context) => login(),
                     ),
                   );
                 },
@@ -94,7 +95,7 @@ class selecao_usuario extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const login(),
+                      builder: (context) => login(),
                     ),
                   );
                 },
@@ -110,7 +111,7 @@ class selecao_usuario extends StatelessWidget {
                   'Não tem uma conta?',
                   style: TextStyle(
                     color: Color.fromARGB(255, 234, 234, 234),
-                    fontSize: 16,
+                    fontSize: 22,
                   ),
                 ),
                 SizedBox(width: 2)
@@ -123,7 +124,8 @@ class selecao_usuario extends StatelessWidget {
                   "Cadastre-se",
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 22,
+                      decoration: TextDecoration.underline,
                       color: Color.fromARGB(255, 225, 225, 226),
                       fontWeight: FontWeight.bold),
                 ),

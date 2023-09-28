@@ -1,16 +1,18 @@
+import 'package:aaz_servicos/pages/Login/esqueceu_senha.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:aaz_servicos/pages/Login/cadastro.dart';
 import 'package:aaz_servicos/pages/Login/selecao_usuario.dart';
 import 'package:flutter/material.dart';
+import 'package:aaz_servicos/pages/Servicos/lista_servicos.dart';
+import 'package:aaz_servicos/models/auth.dart';
 
 class login extends StatelessWidget {
-  const login({super.key});
+  login({super.key});
 
   @override
   Widget build(BuildContext context) {
-    var txtEmail = TextEditingController();
-    var txtSenha = TextEditingController();
-
+    var emailController = TextEditingController();
+    var senhaController = TextEditingController();
     return Scaffold(
         body: Stack(
       children: [
@@ -28,7 +30,7 @@ class login extends StatelessWidget {
             child: Text(
               'Olá, seja \nbem vindo!',
               style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 35,
                   color: Colors.white,
                   fontWeight: FontWeight.bold),
             ),
@@ -66,53 +68,65 @@ class login extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   TextFormField(
-                    controller: txtEmail,
+                    controller: emailController,
                     autofocus: true, //-----------------
                     keyboardType:
                         TextInputType.emailAddress, //-----------------
-                    decoration: InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.check,
-                          color: Color.fromARGB(255, 103, 101, 101),
-                        ),
+                    decoration: const InputDecoration(
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                          color: Colors.deepOrange,
+                          width: 2,
+                        )),
                         label: Text(
                           'E-mail',
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
                             color: Color.fromARGB(255, 103, 101, 101),
                           ),
                         )),
                   ),
                   TextFormField(
-                    controller: txtSenha,
+                    controller: senhaController,
                     autofocus: true,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.visibility_off,
-                          color: Color.fromARGB(255, 103, 101, 101),
-                        ),
+                    keyboardType: TextInputType.text,
+                    obscureText: true,
+                    decoration: const InputDecoration(
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                          color: Colors.deepOrange,
+                          width: 2,
+                        )),
                         label: Text(
                           'Senha',
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
                             color: Color.fromARGB(255, 103, 101, 101),
                           ),
                         )),
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 18,
                   ),
-                  const Align(
+                  Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      'Esqueceu a senha?',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Colors.deepOrange,
-                      ),
-                    ),
+                    child: TextButton(
+                        child: const Text(
+                          'Esqueceu a senha?',
+                          style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: Color.fromARGB(255, 110, 110, 110)),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => esqueceu_senha(),
+                            ),
+                          );
+                        }),
                   ),
                   const SizedBox(
                     height: 70,
@@ -120,9 +134,9 @@ class login extends StatelessWidget {
                   Container(
                     height: 55,
                     width: 300,
-                    decoration: BoxDecoration(
-                      borderRadius: const BorderRadius.all(Radius.circular(30)),
-                      gradient: const LinearGradient(colors: [
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(30)),
+                      gradient: LinearGradient(colors: [
                         Color.fromARGB(216, 255, 85, 33),
                         Color.fromARGB(255, 201, 53, 53),
                       ]),
@@ -136,11 +150,12 @@ class login extends StatelessWidget {
                           fontSize: 20,
                         ),
                       ),
-                      onPressed: () {},
+                      onPressed: () => _loginUser(
+                          emailController.text, senhaController.text, context),
                     ),
                   ),
                   const SizedBox(
-                    height: 150,
+                    height: 110,
                   ),
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -149,7 +164,7 @@ class login extends StatelessWidget {
                         'Não tem uma conta?',
                         style: TextStyle(
                           color: Color.fromARGB(255, 2, 2, 2),
-                          fontSize: 16,
+                          fontSize: 17,
                         ),
                       ),
                     ],
@@ -185,5 +200,32 @@ class login extends StatelessWidget {
         )
       ],
     ));
+  }
+
+  Future<void> _loginUser(email, senha, context) async {
+    //Navigator.pushReplacementNamed(context, 'menuPrincipal');
+    try {
+      await Authent().loginwithEmailAndPassword(email, senha).then((value) {});
+      Navigator.pushReplacementNamed(context, 'lista_servicos');
+    } on FirebaseException catch (e) {
+      var msg = '';
+      if (e.code == 'user-not-found') {
+        msg = 'ERRO: Usuario não encontrado';
+      } else if (e.code == 'wrong-password') {
+        msg = 'ERRO: Senha incorreta';
+      } else if (e.code == 'invalid-email') {
+        msg = 'ERRO: Email inválido';
+      } else {
+        msg = 'ERRO: ${e.message}';
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          duration: Duration(
+            seconds: 2,
+          ),
+        ),
+      );
+    }
   }
 }
