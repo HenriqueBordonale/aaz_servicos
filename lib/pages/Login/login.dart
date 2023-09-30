@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:aaz_servicos/pages/Login/cadastro.dart';
 import 'package:aaz_servicos/pages/Login/selecao_usuario.dart';
 import 'package:flutter/material.dart';
-import 'package:aaz_servicos/pages/Servicos/lista_servicos.dart';
+import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 import 'package:aaz_servicos/models/auth.dart';
 
 class login extends StatelessWidget {
@@ -21,8 +21,8 @@ class login extends StatelessWidget {
           width: double.infinity,
           decoration: const BoxDecoration(
             gradient: LinearGradient(colors: [
-              Color.fromARGB(216, 255, 85, 33),
-              Color.fromARGB(255, 201, 53, 53),
+              Color.fromARGB(221, 249, 74, 16),
+              Color.fromARGB(226, 236, 55, 45),
             ]),
           ),
           child: const Padding(
@@ -37,10 +37,10 @@ class login extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 35, left: 320),
+          padding: const EdgeInsets.only(top: 50, left: 330),
           child: IconButton(
             iconSize: 40,
-            icon: const Icon(Icons.arrow_circle_left),
+            icon: const Icon(Icons.arrow_back),
             color: Colors.white,
             onPressed: () {
               Navigator.push(
@@ -75,7 +75,7 @@ class login extends StatelessWidget {
                     decoration: const InputDecoration(
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                          color: Colors.deepOrange,
+                          color: Color.fromARGB(226, 236, 55, 45),
                           width: 2,
                         )),
                         label: Text(
@@ -94,7 +94,7 @@ class login extends StatelessWidget {
                     decoration: const InputDecoration(
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                          color: Colors.deepOrange,
+                          color: Color.fromARGB(226, 236, 55, 45),
                           width: 2,
                         )),
                         label: Text(
@@ -114,10 +114,9 @@ class login extends StatelessWidget {
                         child: const Text(
                           'Esqueceu a senha?',
                           style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              fontWeight: FontWeight.bold,
+                              fontFamily: 'Inter-Thin',
                               fontSize: 16,
-                              color: Color.fromARGB(255, 110, 110, 110)),
+                              color: Color.fromARGB(255, 97, 95, 95)),
                         ),
                         onPressed: () {
                           Navigator.push(
@@ -137,8 +136,8 @@ class login extends StatelessWidget {
                     decoration: const BoxDecoration(
                       borderRadius: BorderRadius.all(Radius.circular(30)),
                       gradient: LinearGradient(colors: [
-                        Color.fromARGB(216, 255, 85, 33),
-                        Color.fromARGB(255, 201, 53, 53),
+                        Color.fromARGB(221, 249, 74, 16),
+                        Color.fromARGB(226, 236, 55, 45),
                       ]),
                     ),
                     child: TextButton(
@@ -163,8 +162,9 @@ class login extends StatelessWidget {
                       Text(
                         'Não tem uma conta?',
                         style: TextStyle(
-                          color: Color.fromARGB(255, 2, 2, 2),
-                          fontSize: 17,
+                          fontFamily: 'Inter',
+                          color: Color.fromARGB(255, 65, 64, 64),
+                          fontSize: 18,
                         ),
                       ),
                     ],
@@ -184,7 +184,7 @@ class login extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                     fontSize: 18,
-                    color: Colors.deepOrange,
+                    color: Color.fromARGB(226, 236, 55, 45),
                     fontWeight: FontWeight.bold),
               ),
               onPressed: () {
@@ -206,7 +206,7 @@ class login extends StatelessWidget {
     //Navigator.pushReplacementNamed(context, 'menuPrincipal');
     try {
       await Authent().loginwithEmailAndPassword(email, senha).then((value) {});
-      Navigator.pushReplacementNamed(context, 'lista_servicos');
+      Navigator.pushReplacementNamed(context, 'menu principal');
     } on FirebaseException catch (e) {
       var msg = '';
       if (e.code == 'user-not-found') {

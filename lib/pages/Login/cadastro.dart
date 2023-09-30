@@ -1,6 +1,3 @@
-import 'dart:collection';
-import 'dart:ui';
-
 import 'package:aaz_servicos/pages/Login/cadastro_servico.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:aaz_servicos/models/auth.dart';
@@ -23,8 +20,6 @@ class _Cadastro extends State<Cadastro> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   SingingCharacter? _character = SingingCharacter.contratante;
-
-  String? userUid;
 
   Map<SingingCharacter, String> characterMap = {
     SingingCharacter.contratante: 'contratante',
@@ -51,6 +46,7 @@ class _Cadastro extends State<Cadastro> {
   var senhaController = TextEditingController();
   var nomeController = TextEditingController();
   var dataController = TextEditingController();
+  String buttonText = 'CADASTRAR';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,8 +56,8 @@ class _Cadastro extends State<Cadastro> {
         width: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(colors: [
-            Color.fromARGB(216, 255, 85, 33),
-            Color.fromARGB(255, 201, 53, 53),
+            Color.fromARGB(221, 249, 74, 16),
+            Color.fromARGB(226, 236, 55, 45),
           ]),
         ),
         child: const Padding(
@@ -74,10 +70,10 @@ class _Cadastro extends State<Cadastro> {
         ),
       ),
       Padding(
-        padding: const EdgeInsets.only(top: 35, left: 320),
+        padding: const EdgeInsets.only(top: 50, left: 330),
         child: IconButton(
           iconSize: 40,
-          icon: const Icon(Icons.arrow_circle_left),
+          icon: const Icon(Icons.arrow_back),
           color: Colors.white,
           onPressed: () {
             Navigator.push(
@@ -108,7 +104,9 @@ class _Cadastro extends State<Cadastro> {
                   'Qual seu tipo de usuário?',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                      fontSize: 18, color: Color.fromARGB(255, 102, 101, 101)),
+                      fontFamily: 'Inter',
+                      fontSize: 19,
+                      color: Color.fromARGB(255, 77, 76, 76)),
                 ),
                 const SizedBox(
                   height: 10,
@@ -120,12 +118,13 @@ class _Cadastro extends State<Cadastro> {
                         title: const Text(
                           'Contratante',
                           style: TextStyle(
-                              fontSize: 17,
+                              fontFamily: 'Inter',
+                              fontSize: 18,
                               color: Color.fromARGB(255, 46, 46, 46)),
                         ),
                         value: SingingCharacter.contratante,
                         dense: true,
-                        activeColor: Colors.deepOrange,
+                        activeColor: const Color.fromARGB(226, 236, 55, 45),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         ),
@@ -133,6 +132,7 @@ class _Cadastro extends State<Cadastro> {
                         groupValue: _character,
                         onChanged: (SingingCharacter? value) {
                           setState(() {
+                            buttonText = 'CADASTRAR';
                             _character = value;
                           });
                         },
@@ -144,12 +144,13 @@ class _Cadastro extends State<Cadastro> {
                         title: const Text(
                           'Ofertante',
                           style: TextStyle(
-                              fontSize: 17,
+                              fontFamily: 'Inter',
+                              fontSize: 18,
                               color: Color.fromARGB(255, 46, 46, 46)),
                         ),
                         value: SingingCharacter.ofertante,
                         dense: true,
-                        activeColor: Colors.deepOrange,
+                        activeColor: const Color.fromARGB(226, 236, 55, 45),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(5.0),
                         ),
@@ -157,6 +158,7 @@ class _Cadastro extends State<Cadastro> {
                         groupValue: _character,
                         onChanged: (SingingCharacter? value) {
                           setState(() {
+                            buttonText = 'CONTINUAR';
                             _character = value;
                           });
                         },
@@ -176,13 +178,12 @@ class _Cadastro extends State<Cadastro> {
                     )),
                     labelText: "Nome",
                     labelStyle: TextStyle(
-                      fontWeight: FontWeight.bold,
                       color: Colors.black38,
-                      fontSize: 17,
+                      fontSize: 19,
                     ),
                   ),
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 19,
                   ),
                   validator: (value) => value == null || value.isEmpty
                       ? 'Digite seu Nome'
@@ -196,18 +197,17 @@ class _Cadastro extends State<Cadastro> {
                   decoration: const InputDecoration(
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                      color: Colors.deepOrange,
+                      color: Color.fromARGB(226, 236, 55, 45),
                       width: 2,
                     )),
                     labelText: "E-mail",
                     labelStyle: TextStyle(
                       color: Colors.black38,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: 19,
                     ),
                   ),
                   style: const TextStyle(
-                    fontSize: 17,
+                    fontSize: 19,
                   ),
                   validator: (value) => value == null || value.isEmpty
                       ? 'Preencha o campo de email!'
@@ -222,17 +222,16 @@ class _Cadastro extends State<Cadastro> {
                   decoration: const InputDecoration(
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                      color: Colors.deepOrange,
+                      color: Color.fromARGB(226, 236, 55, 45),
                       width: 2,
                     )),
                     labelText: "Senha",
                     labelStyle: TextStyle(
                       color: Colors.black38,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: 19,
                     ),
                   ),
-                  style: const TextStyle(fontSize: 17),
+                  style: const TextStyle(fontSize: 19),
                   validator: ((value) {
                     if (value == null || value.isEmpty) {
                       return 'Preencha o campo de senha!';
@@ -249,17 +248,16 @@ class _Cadastro extends State<Cadastro> {
                   decoration: const InputDecoration(
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                      color: Colors.deepOrange,
+                      color: Color.fromARGB(226, 236, 55, 45),
                       width: 2,
                     )),
                     labelText: "Data de Nascimento",
                     labelStyle: TextStyle(
                       color: Colors.black38,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
+                      fontSize: 19,
                     ),
                   ),
-                  style: const TextStyle(fontSize: 17),
+                  style: const TextStyle(fontSize: 19),
                   validator: ((value) {
                     if (value == null || value.isEmpty) {
                       return 'Preencha o campo de data de nascimento';
@@ -282,9 +280,8 @@ class _Cadastro extends State<Cadastro> {
                   hint: const Text(
                     'Selecione seu gênero',
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 19,
                       color: Colors.grey,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                   items: genderItems
@@ -294,7 +291,7 @@ class _Cadastro extends State<Cadastro> {
                               item,
                               style: const TextStyle(
                                 color: Color.fromARGB(255, 68, 68, 68),
-                                fontSize: 17,
+                                fontSize: 19,
                               ),
                             ),
                           ))
@@ -317,7 +314,7 @@ class _Cadastro extends State<Cadastro> {
                   iconStyleData: const IconStyleData(
                     icon: Icon(
                       Icons.arrow_drop_down,
-                      color: Colors.deepOrange,
+                      color: Color.fromARGB(226, 236, 55, 45),
                     ),
                     iconSize: 24,
                   ),
@@ -339,15 +336,15 @@ class _Cadastro extends State<Cadastro> {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(30),
                     gradient: const LinearGradient(colors: [
-                      Color.fromARGB(216, 255, 85, 33),
-                      Color.fromARGB(255, 201, 53, 53),
+                      Color.fromARGB(221, 249, 74, 16),
+                      Color.fromARGB(226, 236, 55, 45),
                     ]),
                   ),
                   child: SizedBox.expand(
                     child: TextButton(
-                        child: const Text(
-                          'CADASTRAR',
-                          style: TextStyle(
+                        child: Text(
+                          buttonText,
+                          style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
                               color: Colors.white),

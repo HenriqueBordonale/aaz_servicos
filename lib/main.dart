@@ -6,7 +6,7 @@ import 'package:aaz_servicos/pages/Login/selecao_usuario.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
 import 'package:aaz_servicos/pages/Login/cadastro.dart';
 import 'firebase_options.dart';
-import 'package:aaz_servicos/pages/Servicos/lista_servicos.dart';
+import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
       routes: {
         'login': (context) => login(),
         'cadastro': (context) => const Cadastro(),
-        'lista_servicos': (context) => const lista_servicos(),
+        'menu principal': (context) => const menuPrincipal(),
         'esqueceu senha': (context) => esqueceu_senha(),
         'cadastro_servico': (context) => cadastro_servico(),
       },

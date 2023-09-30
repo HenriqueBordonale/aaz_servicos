@@ -16,14 +16,17 @@ class DatabaseMethods {
     return FirebaseFirestore.instance.collection("userofer").add(usersInfoMap);
   }
 
-  Future addSrvicosinfoToDB(Map<String, dynamic> petsInfoMap) {
-    return FirebaseFirestore.instance.collection("pets").add(petsInfoMap);
+  Future addServicosInfoToDB(Map<String, dynamic> servicosInfoMap) {
+    return FirebaseFirestore.instance
+        .collection("servicos")
+        .add(servicosInfoMap);
   }
 
-  Future updatSrvicosinfoToDB(Map<String, dynamic> petsInfoMap, String idPet) {
+  Future updateServicosinfoToDB(
+      Map<String, dynamic> servicosInfoMap, String idServico) {
     return FirebaseFirestore.instance
-        .collection("pets")
-        .doc(idPet)
-        .set(petsInfoMap);
+        .collection("servicos")
+        .doc(idServico)
+        .set(servicosInfoMap);
   }
 }

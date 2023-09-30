@@ -1,10 +1,8 @@
-import 'dart:collection';
 import 'dart:convert';
-import 'dart:ui';
 
+import 'package:aaz_servicos/pages/Login/cadastro.dart';
 import 'package:http/http.dart' as http;
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:aaz_servicos/models/auth.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:aaz_servicos/models/usuarios.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class cadastro_servico extends StatefulWidget {
   const cadastro_servico({super.key});
@@ -88,8 +85,8 @@ class _Cadastroserv extends State<cadastro_servico> {
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(colors: [
-                Color.fromARGB(216, 255, 85, 33),
-                Color.fromARGB(255, 201, 53, 53),
+                Color.fromARGB(221, 249, 74, 16),
+                Color.fromARGB(226, 236, 55, 45),
               ]),
             ),
             child: const Padding(
@@ -97,23 +94,23 @@ class _Cadastroserv extends State<cadastro_servico> {
               child: Text(
                 'Preencha com\nseus dados',
                 style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 35,
                     color: Colors.white,
                     fontWeight: FontWeight.bold),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 35, left: 320),
+            padding: const EdgeInsets.only(top: 50, left: 330),
             child: IconButton(
               iconSize: 40,
-              icon: const Icon(Icons.arrow_circle_left),
+              icon: const Icon(Icons.arrow_back),
               color: Colors.white,
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => login(),
+                    builder: (context) => const Cadastro(),
                   ),
                 );
               },
@@ -145,7 +142,7 @@ class _Cadastroserv extends State<cadastro_servico> {
                       decoration: const InputDecoration(
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(
-                          color: Colors.deepOrange,
+                          color: Color.fromARGB(226, 236, 55, 45),
                           width: 2,
                         )),
                         labelText: "CPF",
@@ -166,12 +163,38 @@ class _Cadastroserv extends State<cadastro_servico> {
                       }),
                     ),
                     const SizedBox(
+                      height: 30,
+                    ),
+                    const Text(
+                        "Preencha a Unidade Federativa e cidade residente ",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 71, 71, 71),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(
                       height: 25,
                     ),
-                    DropdownButton<String>(
+                    DropdownButtonFormField2<String>(
                       isExpanded: true,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 15),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        // Add more decoration..
+                      ),
                       value: _selectedUF,
-                      hint: const Text('Selecione seu Estado'),
+                      hint: const Text(
+                        'Selecione seu Estado',
+                      ),
+                      iconStyleData: const IconStyleData(
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Color.fromARGB(226, 236, 55, 45),
+                        ),
+                        iconSize: 24,
+                      ),
                       onChanged: (newValue) {
                         setState(() {
                           _selectedUF = newValue!;
@@ -194,16 +217,34 @@ class _Cadastroserv extends State<cadastro_servico> {
                         ..._ufs.map<DropdownMenuItem<String>>((String uf) {
                           return DropdownMenuItem<String>(
                             value: uf,
-                            child: Text(uf),
+                            child: Text(
+                              uf,
+                              style: TextStyle(fontSize: 20),
+                            ),
                           );
                         }).toList(),
                       ],
                     ),
-                    const SizedBox(height: 10),
-                    DropdownButton<String>(
+                    const SizedBox(height: 20),
+                    DropdownButtonFormField2<String>(
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 15),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        // Add more decoration..
+                      ),
                       isExpanded: true,
                       value: _selectedCity,
                       hint: const Text('Selecione uma cidade'),
+                      iconStyleData: const IconStyleData(
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Color.fromARGB(226, 236, 55, 45),
+                        ),
+                        iconSize: 24,
+                      ),
                       onChanged: (newValue) {
                         setState(() {
                           _selectedCity = newValue!;
@@ -223,13 +264,14 @@ class _Cadastroserv extends State<cadastro_servico> {
                             value: city,
                             child: Text(
                               city,
+                              style: TextStyle(fontSize: 20),
                             ),
                           );
                         }).toList(),
                       ],
                     ),
                     const SizedBox(
-                      height: 25,
+                      height: 30,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 18.0, right: 18),
@@ -242,8 +284,8 @@ class _Cadastroserv extends State<cadastro_servico> {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(30),
                                 gradient: const LinearGradient(colors: [
-                                  Color.fromARGB(216, 255, 85, 33),
-                                  Color.fromARGB(255, 201, 53, 53),
+                                  Color.fromARGB(221, 249, 74, 16),
+                                  Color.fromARGB(226, 236, 55, 45),
                                 ]),
                               ),
                               child: SizedBox.expand(
@@ -261,12 +303,17 @@ class _Cadastroserv extends State<cadastro_servico> {
                                             .createOfer(
                                                 idofer.toString(),
                                                 cpfController.text,
-                                                _selectedUF.toString(),
                                                 _selectedCity.toString(),
+                                                _selectedUF.toString(),
                                                 context)
                                             .then(
                                           (value) {
-                                            Navigator.pop(context);
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => login(),
+                                              ),
+                                            );
                                           },
                                         );
                                       } catch (e) {

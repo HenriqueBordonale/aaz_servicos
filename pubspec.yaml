@@ -42,7 +42,8 @@ dependencies:
   dropdown_button2: ^2.3.8
   http: ^0.13.3
   cpf_cnpj_validator: ^2.0.0
-  flutter_typeahead: ^4.8.0
+  google_nav_bar: ^5.0.3
+  
 
 
 dev_dependencies:
@@ -102,6 +103,11 @@ flutter:
     - assets/images/
 
   fonts:
-    - family: Roboto-Regular
+  
+    - family: Inter
       fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Inter-Thin.ttf
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Black.ttf
+        - asset: assets/fonts/Inter-ExtraLight.ttf
+        - asset: assets/fonts/Inter-Medium.ttf

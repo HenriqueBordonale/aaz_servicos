@@ -17,35 +17,32 @@ class selecao_usuario extends StatelessWidget {
         width: double.infinity,
         decoration: const BoxDecoration(
             gradient: LinearGradient(colors: [
-          Color.fromARGB(216, 255, 85, 33),
-          Color.fromARGB(255, 201, 53, 53),
+          Color.fromARGB(221, 249, 74, 16),
+          Color.fromARGB(226, 236, 55, 45),
         ])),
         child: ListView(
           children: <Widget>[
             SizedBox(
-              width: 204,
-              height: 204,
+              width: 214,
+              height: 214,
               child: Image.asset("assets/images/LogoT.png"),
             ),
             const SizedBox(
-              height: 10,
+              height: 30,
             ),
-            Container(
-              child: const Center(
-                child: Text(
-                  "Qual tipo de usuário deseja entrar?",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'Roboto-Regular',
-                    color: Color.fromARGB(255, 234, 234, 234),
-                    fontSize: 25,
-                    fontWeight: FontWeight.bold,
-                  ),
+            const Center(
+              child: Text(
+                "Faça o login ou cadastre-se para continuar!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'Inter-Black',
+                  color: Color.fromARGB(255, 234, 234, 234),
+                  fontSize: 30,
                 ),
               ),
             ),
             const SizedBox(
-              height: 60,
+              height: 160,
             ),
             Container(
               height: 60,
@@ -56,7 +53,7 @@ class selecao_usuario extends StatelessWidget {
               ),
               child: TextButton(
                 child: const Text(
-                  "Ofertante",
+                  "LOGIN",
                   style: TextStyle(
                     color: Color.fromARGB(255, 234, 234, 234),
                     fontWeight: FontWeight.bold,
@@ -84,50 +81,12 @@ class selecao_usuario extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(30))),
               child: TextButton(
                 child: const Text(
-                  "Contratante",
+                  "CADASTRE-SE",
                   style: TextStyle(
-                    color: Colors.deepOrange,
+                    color: Color.fromARGB(226, 236, 55, 45),
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => login(),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(
-              height: 150,
-            ),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Não tem uma conta?',
-                  style: TextStyle(
-                    color: Color.fromARGB(255, 234, 234, 234),
-                    fontSize: 22,
-                  ),
-                ),
-                SizedBox(width: 2)
-              ],
-            ),
-            SizedBox(
-              height: 40,
-              child: TextButton(
-                child: const Text(
-                  "Cadastre-se",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 22,
-                      decoration: TextDecoration.underline,
-                      color: Color.fromARGB(255, 225, 225, 226),
-                      fontWeight: FontWeight.bold),
                 ),
                 onPressed: () {
                   Navigator.push(

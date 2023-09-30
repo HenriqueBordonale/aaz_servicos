@@ -11,10 +11,29 @@ class esqueceu_senha extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.only(top: 60, left: 40, right: 40),
+        padding: EdgeInsets.only(top: 10, left: 40, right: 40),
         color: Colors.white,
         child: ListView(
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(left: 280),
+              child: IconButton(
+                iconSize: 40,
+                icon: const Icon(Icons.arrow_back),
+                color: Color.fromARGB(226, 236, 55, 45),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => login(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
@@ -32,7 +51,7 @@ class esqueceu_senha extends StatelessWidget {
                       const Text(
                         "Esqueceu sua senha?",
                         style: TextStyle(
-                          color: Color.fromARGB(216, 255, 85, 33),
+                          color: Color.fromARGB(226, 236, 55, 45),
                           fontSize: 32,
                           fontWeight: FontWeight.w500,
                         ),
@@ -64,7 +83,7 @@ class esqueceu_senha extends StatelessWidget {
                         decoration: const InputDecoration(
                           focusedBorder: UnderlineInputBorder(
                               borderSide: BorderSide(
-                            color: Colors.deepOrange,
+                            color: Color.fromARGB(226, 236, 55, 45),
                             width: 2,
                           )),
                           labelText: "E-mail",
@@ -85,8 +104,8 @@ class esqueceu_senha extends StatelessWidget {
                         decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(30)),
                           gradient: LinearGradient(colors: [
-                            Color.fromARGB(216, 255, 85, 33),
-                            Color.fromARGB(255, 201, 53, 53),
+                            Color.fromARGB(221, 249, 74, 16),
+                            Color.fromARGB(226, 236, 55, 45),
                           ]),
                         ),
                         child: Container(
