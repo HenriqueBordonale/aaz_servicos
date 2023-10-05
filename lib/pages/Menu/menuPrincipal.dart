@@ -1,5 +1,7 @@
+import 'package:aaz_servicos/pages/Configuracoes/config.dart';
 import 'package:flutter/material.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'dart:io';
 
 class menuPrincipal extends StatefulWidget {
   const menuPrincipal({super.key});
@@ -9,78 +11,60 @@ class menuPrincipal extends StatefulWidget {
 }
 
 class _menuPrincipal extends State<menuPrincipal> {
-  int escolhaTela = 0;
+  int _currentIndex = 0;
+
   final List<Widget> _screens = [
-    Tela1(),
-    Tela2(),
-    Tela3(),
-    Tela4(),
+    Screen1(),
+    Screen2(),
+    Screen3(),
+    const Config(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          _screens[escolhaTela], // Coloque os screens aqui
-          Divider(
-            color: Color.fromARGB(255, 41, 40, 40), // Define a cor da linha
-            thickness: 2, // Define a espessura da linha
-            indent: 20, // Define o recuo à esquerda
-            endIndent: 20, // Define o recuo à direita
+      body: _screens[_currentIndex],
+      bottomNavigationBar: CurvedNavigationBar(
+        index: _currentIndex,
+        height: 50.0,
+        items: <Widget>[
+          Icon(
+            Icons.dashboard,
+            size: 30,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.message,
+            size: 30,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.construction,
+            size: 30,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.settings,
+            size: 30,
+            color: Colors.white,
           ),
         ],
-      ),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 1, vertical: 5),
-        child: GNav(
-          rippleColor: const Color.fromARGB(
-              255, 66, 66, 66), // tab button ripple color when pressed
-          hoverColor:
-              const Color.fromARGB(255, 97, 97, 97), // tab button hover color
-          haptic: true, // haptic feedback
-          tabBorderRadius: 50,
-          tabActiveBorder: Border.all(
-              color: Color.fromARGB(255, 41, 40, 40),
-              width: 2), // tab button border
-          curve: Curves.easeOutExpo, // tab animation curves
-          duration: Duration(milliseconds: 900), // tab animation duration
-          gap: 8, // the tab button gap between icon and text
-          color: Color.fromARGB(255, 41, 40, 40), // unselected icon color
-          activeColor: const Color.fromARGB(255, 41, 40, 40),
-          iconSize: 24, // tab button icon size
-          tabBackgroundColor: Colors.transparent,
-          tabs: [
-            GButton(
-              icon: Icons.space_dashboard,
-              text: 'Perfis',
-            ),
-            GButton(
-              icon: Icons.message,
-              text: 'Chats',
-            ),
-            GButton(
-              icon: Icons.home_repair_service,
-              text: 'Serviços',
-            ),
-            GButton(
-              icon: Icons.settings,
-              text: 'Config',
-            ),
-          ],
-          selectedIndex: escolhaTela,
-          onTabChange: (index) {
-            setState(() {
-              escolhaTela = index;
-            });
-          },
-        ),
+        color: Color.fromARGB(221, 249, 74, 16),
+        buttonBackgroundColor: Color.fromARGB(221, 249, 74, 16),
+        backgroundColor: Colors.transparent,
+        animationCurve: Curves.easeInOut,
+        animationDuration: Duration(milliseconds: 300),
+        onTap: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
       ),
     );
   }
 }
 
-class Tela1 extends StatelessWidget {
+class Screen1 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -89,7 +73,7 @@ class Tela1 extends StatelessWidget {
   }
 }
 
-class Tela2 extends StatelessWidget {
+class Screen2 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -98,7 +82,7 @@ class Tela2 extends StatelessWidget {
   }
 }
 
-class Tela3 extends StatelessWidget {
+class Screen3 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
@@ -107,7 +91,7 @@ class Tela3 extends StatelessWidget {
   }
 }
 
-class Tela4 extends StatelessWidget {
+class Screen4 extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(

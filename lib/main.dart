@@ -1,4 +1,5 @@
-import 'package:aaz_servicos/pages/Login/cadastro_servico.dart';
+import 'package:aaz_servicos/pages/Configuracoes/config.dart';
+import 'package:aaz_servicos/pages/Login/cadastro_ofertante.dart';
 import 'package:aaz_servicos/pages/Login/esqueceu_senha.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,8 @@ class MyApp extends StatelessWidget {
         'cadastro': (context) => const Cadastro(),
         'menu principal': (context) => const menuPrincipal(),
         'esqueceu senha': (context) => esqueceu_senha(),
-        'cadastro_servico': (context) => cadastro_servico(),
+        'cadastro_servico': (context) => const CadastroOfer(),
+        'configuracao': (context) => const Config(),
       },
     );
   }

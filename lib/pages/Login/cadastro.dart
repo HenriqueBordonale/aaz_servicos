@@ -1,4 +1,4 @@
-import 'package:aaz_servicos/pages/Login/cadastro_servico.dart';
+import 'package:aaz_servicos/pages/Login/cadastro_ofertante.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:aaz_servicos/models/auth.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
@@ -173,7 +173,7 @@ class _Cadastro extends State<Cadastro> {
                   decoration: const InputDecoration(
                     focusedBorder: UnderlineInputBorder(
                         borderSide: BorderSide(
-                      color: Colors.deepOrange,
+                      color: Color.fromARGB(221, 249, 74, 16),
                       width: 2,
                     )),
                     labelText: "Nome",
@@ -371,7 +371,8 @@ class _Cadastro extends State<Cadastro> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => cadastro_servico(),
+                                      builder: (context) =>
+                                          const CadastroOfer(),
                                     ),
                                   );
                                 }

@@ -7,32 +7,38 @@ import 'package:aaz_servicos/pages/Login/login.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:aaz_servicos/models/usuarios.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
+import 'package:aaz_servicos/models/servicos.dart';
+import 'package:uuid/uuid.dart';
 
-class cadastro_servico extends StatefulWidget {
-  const cadastro_servico({super.key});
+class CadastroOfer extends StatefulWidget {
+  const CadastroOfer({super.key});
 
   @override
-  State<cadastro_servico> createState() => _Cadastroserv();
+  State<CadastroOfer> createState() => _CadastroOfer();
 }
 
-class _Cadastroserv extends State<cadastro_servico> {
+Servicos minhaInstancia = Servicos();
+List<String> serv = minhaInstancia.get_Servicos;
+
+var uuid = Uuid();
+String idServ = uuid.v4();
+
+class _CadastroOfer extends State<CadastroOfer> {
   final maskCpf = MaskTextInputFormatter(
       mask: "###.###.###-##", filter: {"#": RegExp(r'[0-9]')});
   final FirebaseAuth auth = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
 
-  CollectionReference _collectionReference =
-      FirebaseFirestore.instance.collection("usernutri");
-
   String idofer = FirebaseAuth.instance.currentUser!.uid;
 
+  String? _selectedServ;
   String? _selectedUF; // UF selecionada
   String? _selectedCity; // Cidade selecionada
   List<String> _ufs = [];
   List<String> _cities = [];
+  var especController = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -133,7 +139,7 @@ class _Cadastroserv extends State<cadastro_servico> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     const SizedBox(
-                      height: 40,
+                      height: 20,
                     ),
                     TextFormField(
                       controller: cpfController,
@@ -149,10 +155,10 @@ class _Cadastroserv extends State<cadastro_servico> {
                         labelStyle: TextStyle(
                           color: Colors.black38,
                           fontWeight: FontWeight.w400,
-                          fontSize: 20,
+                          fontSize: 17,
                         ),
                       ),
-                      style: const TextStyle(fontSize: 20),
+                      style: const TextStyle(fontSize: 17),
                       validator: ((value) {
                         if (value == null || value.isEmpty) {
                           return 'Preencha o campo de CPF';
@@ -163,7 +169,7 @@ class _Cadastroserv extends State<cadastro_servico> {
                       }),
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 20,
                     ),
                     const Text(
                         "Preencha a Unidade Federativa e cidade residente ",
@@ -172,13 +178,13 @@ class _Cadastroserv extends State<cadastro_servico> {
                             fontSize: 15,
                             fontWeight: FontWeight.bold)),
                     const SizedBox(
-                      height: 25,
+                      height: 15,
                     ),
                     DropdownButtonFormField2<String>(
                       isExpanded: true,
                       decoration: InputDecoration(
                         contentPadding:
-                            const EdgeInsets.symmetric(vertical: 15),
+                            const EdgeInsets.symmetric(vertical: 10),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
@@ -210,7 +216,7 @@ class _Cadastroserv extends State<cadastro_servico> {
                             'Selecione uma UF',
                             style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 20,
+                              fontSize: 17,
                             ),
                           ), // Adicione um item vazio ou de seleção padrão
                         ),
@@ -219,7 +225,7 @@ class _Cadastroserv extends State<cadastro_servico> {
                             value: uf,
                             child: Text(
                               uf,
-                              style: TextStyle(fontSize: 20),
+                              style: const TextStyle(fontSize: 17),
                             ),
                           );
                         }).toList(),
@@ -229,7 +235,7 @@ class _Cadastroserv extends State<cadastro_servico> {
                     DropdownButtonFormField2<String>(
                       decoration: InputDecoration(
                         contentPadding:
-                            const EdgeInsets.symmetric(vertical: 15),
+                            const EdgeInsets.symmetric(vertical: 10),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(15),
                         ),
@@ -256,7 +262,7 @@ class _Cadastroserv extends State<cadastro_servico> {
                           child: Text('Selecione uma cidade',
                               style: TextStyle(
                                 color: Colors.grey,
-                                fontSize: 20,
+                                fontSize: 17,
                               )), // Adicione um item vazio ou de seleção padrão
                         ),
                         ..._cities.map<DropdownMenuItem<String>>((String city) {
@@ -264,14 +270,77 @@ class _Cadastroserv extends State<cadastro_servico> {
                             value: city,
                             child: Text(
                               city,
-                              style: TextStyle(fontSize: 20),
+                              style: const TextStyle(fontSize: 17),
                             ),
                           );
                         }).toList(),
                       ],
                     ),
                     const SizedBox(
-                      height: 30,
+                      height: 20,
+                    ),
+                    const Text("Escolha um serviço e especificação",
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 71, 71, 71),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold)),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    DropdownButtonFormField2<String>(
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 10),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        // Add more decoration..
+                      ),
+                      value: _selectedServ,
+                      hint: const Text('Selecione seu serviço'),
+                      iconStyleData: const IconStyleData(
+                        icon: Icon(
+                          Icons.arrow_drop_down,
+                          color: Color.fromARGB(226, 236, 55, 45),
+                        ),
+                        iconSize: 24,
+                      ),
+                      onChanged: (newValue) {
+                        _selectedServ = newValue!;
+                      },
+                      items: serv.map((String service) {
+                        return DropdownMenuItem<String>(
+                          value: service,
+                          child: Text(service),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    TextFormField(
+                      controller: especController,
+                      autofocus: true,
+                      keyboardType: TextInputType.text,
+                      decoration: const InputDecoration(
+                        focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                          color: Colors.deepOrange,
+                          width: 2,
+                        )),
+                        labelText: "Expecificação",
+                        labelStyle: TextStyle(
+                          color: Colors.black38,
+                          fontSize: 17,
+                        ),
+                      ),
+                      style: const TextStyle(
+                        fontSize: 17,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 25,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 18.0, right: 18),
@@ -299,13 +368,18 @@ class _Cadastroserv extends State<cadastro_servico> {
                                     ),
                                     onPressed: () async {
                                       try {
-                                        await Usuarios()
-                                            .createOfer(
-                                                idofer.toString(),
-                                                cpfController.text,
-                                                _selectedCity.toString(),
-                                                _selectedUF.toString(),
-                                                context)
+                                        adicionarOfertante(
+                                            cpfController.text,
+                                            _selectedUF.toString(),
+                                            _selectedCity.toString(),
+                                            context);
+                                        await Servicos().createServico(
+                                            idServ,
+                                            _selectedServ.toString(),
+                                            especController.text,
+                                            context);
+                                        await Servicos()
+                                            .updateIdServ(idServ)
                                             .then(
                                           (value) {
                                             Navigator.push(
@@ -333,5 +407,32 @@ class _Cadastroserv extends State<cadastro_servico> {
         ],
       ),
     );
+  }
+
+  void adicionarOfertante(String cpf, String cidade, String uf, context) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user != null) {
+        // Obtém o ID do usuário atualmente autenticado
+        final userId = user.uid;
+
+        // Define os novos campos e valores que deseja adicionar ao documento do usuário
+        final novosCampos = {
+          'cpf': cpf,
+          'cidade': cidade,
+          'uf': uf,
+          // Adicione mais campos e valores conforme necessário
+        };
+
+        // Atualiza o documento do usuário na coleção correspondente
+        await FirebaseFirestore.instance
+            .collection('user')
+            .doc(userId)
+            .update(novosCampos);
+      } else {}
+    } catch (e) {
+      print('Erro ao adicionar novos campos ao documento do usuário: $e');
+    }
   }
 }
