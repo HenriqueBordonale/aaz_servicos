@@ -134,7 +134,7 @@ class _CadastroOfer extends State<CadastroOfer> {
               height: double.infinity,
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.only(left: 18.0, right: 18),
+                padding: const EdgeInsets.only(left: 18, right: 18),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [

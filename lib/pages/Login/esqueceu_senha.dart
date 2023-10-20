@@ -11,25 +11,18 @@ class esqueceu_senha extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.only(top: 10, left: 40, right: 40),
+        padding: EdgeInsets.only(top: 10, left: 25, right: 25),
         color: Colors.white,
         child: ListView(
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.only(left: 280),
-              child: IconButton(
-                iconSize: 40,
-                icon: const Icon(Icons.arrow_back),
-                color: Color.fromARGB(226, 236, 55, 45),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => login(),
-                    ),
-                  );
-                },
-              ),
+            IconButton(
+              iconSize: 35,
+              alignment: Alignment.bottomLeft,
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                // Quando o ícone for pressionado, navegue de volta para a tela anterior
+                Navigator.of(context).pop();
+              },
             ),
             const SizedBox(
               height: 20,

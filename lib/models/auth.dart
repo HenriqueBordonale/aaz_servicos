@@ -36,4 +36,8 @@ class Authent {
     UserCredential userCredential =
         await auth.signInWithEmailAndPassword(email: email, password: password);
   }
+
+  Future<void> logout() async {
+    await auth.signOut();
+  }
 }

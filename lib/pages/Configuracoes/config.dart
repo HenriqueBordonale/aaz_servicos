@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -6,6 +8,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:aaz_servicos/models/auth.dart';
+
+import '../Login/esqueceu_senha.dart';
 
 class Config extends StatefulWidget {
   const Config({super.key});
@@ -23,9 +28,11 @@ class _Config extends State<Config> {
   ];
   bool _isEditing = false;
   String? selectedValue;
+
   TextEditingController generoController = TextEditingController();
-  TextEditingController _nameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController nameController = TextEditingController();
+  String? _selectedUF; // UF selecionada
+  String? _selectedCity;
   File? imageFile;
   final picker = ImagePicker();
   String? imageUrl;
@@ -33,6 +40,7 @@ class _Config extends State<Config> {
   @override
   void initState() {
     super.initState();
+    _loadUFs();
     _loadUserData();
     _checkIfImageExists();
   }
@@ -51,11 +59,16 @@ class _Config extends State<Config> {
       final snapshot = await _collectionReference.doc(user.uid).get();
       if (snapshot.exists) {
         final data = snapshot.data() as Map<String, dynamic>;
+
         setState(() {
-          _nameController.text = data['nome'];
-          _emailController.text = data['email'];
+          nameController.text = data['nome'];
           generoController.text = data['genero'];
-          // Configure outros campos aqui
+          _selectedUF = data['uf'];
+          _selectedCity = data['cidade'];
+          if (_selectedUF != null) {
+            _loadCities(
+                _selectedUF!); // Carregue as cidades apenas se _selectedUF não for nulo
+          }
         });
       }
     } catch (error) {
@@ -63,11 +76,63 @@ class _Config extends State<Config> {
     }
   }
 
+  List<String> _ufs = [];
+  List<String> _cities = [];
+  var especController = TextEditingController();
+
+  // Carregar a lista de UFs
+  Future<void> _loadUFs() async {
+    final response = await http.get(
+      Uri.parse('https://servicodados.ibge.gov.br/api/v1/localidades/estados'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _ufs = data.map((uf) => uf['sigla']).cast<String>().toList();
+      });
+    } else {
+      throw Exception('Falha ao buscar UFs');
+    }
+  }
+
+  // Carregar a lista de cidades de uma UF específica
+  Future<void> _loadCities(String uf) async {
+    final response = await http.get(
+      Uri.parse(
+          'https://servicodados.ibge.gov.br/api/v1/localidades/estados/$uf/municipios'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _cities = data.map((city) => city['nome']).cast<String>().toList();
+      });
+    } else {
+      throw Exception('Falha ao buscar cidades');
+    }
+  }
+
+  InputDecoration _getDropdownInputDecoration(bool isEnabled) {
+    return InputDecoration(
+      contentPadding: const EdgeInsets.symmetric(vertical: 15),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(15),
+        borderSide: BorderSide(
+          color: isEnabled
+              ? Color.fromARGB(226, 236, 55, 45)
+              : Colors
+                  .grey, // Defina a cor quando estiver habilitado e desabilitado
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(221, 249, 74, 16),
+        backgroundColor: const Color.fromARGB(221, 249, 74, 16),
         title: const Text('Configurações'),
       ),
       body: SingleChildScrollView(
@@ -76,7 +141,7 @@ class _Config extends State<Config> {
             Container(
               alignment: Alignment.topCenter,
               padding: const EdgeInsets.only(
-                top: 40,
+                top: 30,
               ),
               child: const Text(
                 'Minha Conta',
@@ -124,17 +189,26 @@ class _Config extends State<Config> {
               child: Column(
                 children: [
                   TextField(
-                    controller: _nameController,
+                    controller: nameController,
                     enabled: _isEditing,
-                    decoration: InputDecoration(labelText: 'Nome'),
+                    decoration: const InputDecoration(
+                      labelText: 'Nome',
+                      labelStyle: TextStyle(
+                        color: Colors.black38,
+                        fontSize: 19,
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                        color: Color.fromARGB(226, 236, 55, 45),
+                        width: 2,
+                      )),
+                    ),
                   ),
-                  TextField(
-                    controller: _emailController,
-                    enabled: _isEditing,
-                    decoration: InputDecoration(labelText: 'E-mail'),
-                  ), //
-                  IgnorePointer(
-                    ignoring: !_isEditing,
+                  const SizedBox(
+                    height: 15,
+                  ),
+                  AbsorbPointer(
+                    absorbing: !_isEditing,
                     child: DropdownButtonFormField2<String>(
                       isExpanded: true,
                       decoration: InputDecoration(
@@ -145,11 +219,14 @@ class _Config extends State<Config> {
                         ),
                         // Add more decoration..
                       ),
-                      hint: const Text(
-                        'Selecione seu gênero',
+                      hint: Text(
+                        generoController.text,
                         style: TextStyle(
-                          fontSize: 19,
-                          color: Colors.grey,
+                          fontSize: 17,
+                          color: _isEditing
+                              ? Colors.black
+                              : Colors
+                                  .grey, // Defina a cor com base em _isEditing
                         ),
                       ),
                       items: listGeneros
@@ -157,28 +234,22 @@ class _Config extends State<Config> {
                                 value: item,
                                 child: Text(
                                   item,
-                                  style: const TextStyle(
-                                    color: Color.fromARGB(255, 68, 68, 68),
-                                    fontSize: 19,
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    color: _isEditing
+                                        ? Colors.black
+                                        : Colors
+                                            .grey, // Defina a cor com base em _isEditing
                                   ),
                                 ),
                               ))
                           .toList(),
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Selecione seu gênero';
-                        }
-                        return null;
-                      },
                       onChanged: (value) {
                         generoController.text = value.toString();
                       },
                       onSaved: (value) {
                         selectedValue = value.toString();
                       },
-                      buttonStyleData: const ButtonStyleData(
-                        padding: EdgeInsets.only(right: 8),
-                      ),
                       iconStyleData: const IconStyleData(
                         icon: Icon(
                           Icons.arrow_drop_down,
@@ -192,26 +263,214 @@ class _Config extends State<Config> {
                         ),
                       ),
                       menuItemStyleData: const MenuItemStyleData(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
+                        padding: EdgeInsets.symmetric(horizontal: 15),
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            ElevatedButton(
-              onPressed: () {
-                if (_isEditing) {
-                  // Chame o método de salvamento aqui
-                  _updateUserData();
-                } else {
-                  setState(() {
-                    // Inverte o estado de edição
-                    _isEditing = true;
-                  });
-                }
-              },
-              child: Text(_isEditing ? 'Salvar' : 'Editar'),
+            SizedBox(
+              width: 363,
+              child: AbsorbPointer(
+                absorbing: !_isEditing,
+                child: DropdownButtonFormField2<String>(
+                  isExpanded: true,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    // Add more decoration..
+                  ),
+                  hint: Text("Selecione uma UF"),
+                  iconStyleData: const IconStyleData(
+                    icon: Icon(
+                      Icons.arrow_drop_down,
+                      color: Color.fromARGB(226, 236, 55, 45),
+                    ),
+                    iconSize: 24,
+                  ),
+                  value: _selectedUF,
+                  menuItemStyleData: const MenuItemStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                  ),
+                  onChanged: (newValue) {
+                    setState(() {
+                      if (_isEditing) {
+                        _selectedUF = newValue!;
+                        _selectedCity = null; // Limpar a cidade selecionada
+                        _loadCities(
+                            newValue); // Carregar cidades da UF selecionada
+                      }
+                    });
+                  },
+                  items: _ufs.map<DropdownMenuItem<String>>((String uf) {
+                    return DropdownMenuItem<String>(
+                      value: uf,
+                      child: Text(
+                        uf,
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: _isEditing
+                              ? Colors.black
+                              : Colors
+                                  .grey, // Defina a cor com base em _isEditing
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            SizedBox(
+              width: 365,
+              child: AbsorbPointer(
+                absorbing: !_isEditing,
+                child: DropdownButtonFormField2<String>(
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15),
+
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    // Add more decoration..
+                  ),
+                  isExpanded: true,
+                  hint: Text("Selecione uma cidade"),
+                  iconStyleData: const IconStyleData(
+                    icon: Icon(
+                      Icons.arrow_drop_down,
+                      color: Color.fromARGB(226, 236, 55, 45),
+                    ),
+                    iconSize: 24,
+                  ),
+                  menuItemStyleData: const MenuItemStyleData(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                  ),
+                  value: _selectedCity,
+                  onChanged: (newValue) {
+                    setState(() {
+                      if (_isEditing) {
+                        _selectedCity = newValue!;
+                      }
+                    });
+                  },
+                  items: _cities.map<DropdownMenuItem<String>>((String city) {
+                    return DropdownMenuItem<String>(
+                      value: city,
+                      child: Text(
+                        city,
+                        style: TextStyle(
+                          fontSize: 17,
+                          color: _isEditing
+                              ? Colors.black
+                              : Colors
+                                  .grey, // Defina a cor com base em _isEditing
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            Container(
+              height: 55,
+              width: 300,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(30)),
+                gradient: LinearGradient(colors: [
+                  Color.fromARGB(221, 249, 74, 16),
+                  Color.fromARGB(226, 236, 55, 45),
+                ]),
+              ),
+              child: TextButton(
+                child: Text(
+                  _isEditing ? 'Salvar' : 'Editar',
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 234, 234, 234),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                onPressed: () {
+                  if (_isEditing) {
+                    // Chame o método de salvamento aqui
+                    _updateUserData();
+                  } else {
+                    setState(() {
+                      // Inverte o estado de edição
+                      _isEditing = true;
+                    });
+                  }
+                },
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            Container(
+              height: 55,
+              width: 300,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(30)),
+                gradient: LinearGradient(colors: [
+                  Color.fromARGB(221, 249, 74, 16),
+                  Color.fromARGB(226, 236, 55, 45),
+                ]),
+              ),
+              child: TextButton(
+                child: Text(
+                  'Alterar senha',
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 234, 234, 234),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => esqueceu_senha(),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(
+              height: 15,
+            ),
+            Container(
+              height: 55,
+              width: 300,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(30)),
+                gradient: LinearGradient(colors: [
+                  Color.fromARGB(221, 249, 74, 16),
+                  Color.fromARGB(226, 236, 55, 45),
+                ]),
+              ),
+              child: TextButton(
+                child: const Text(
+                  'Sair',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 234, 234, 234),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+                onPressed: () async {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacementNamed(context, 'login');
+                },
+              ),
             ),
           ],
         ),
@@ -291,17 +550,20 @@ class _Config extends State<Config> {
       final updatedData = <String, dynamic>{};
 
       // Atualize apenas os campos que foram editados
-      if (_nameController.text.isNotEmpty) {
-        updatedData['nome'] = _nameController.text;
+      if (nameController.text.isNotEmpty) {
+        updatedData['nome'] = nameController.text;
       }
 
-      if (_emailController.text.isNotEmpty) {
-        updatedData['email'] = _emailController.text;
-      }
-      if (generoController.text.isEmpty) {
+      if (generoController.text.isNotEmpty) {
         updatedData['genero'] = generoController.text;
       }
 
+      if (_selectedUF.toString().isNotEmpty) {
+        updatedData['uf'] = _selectedUF.toString();
+      }
+      if (_selectedCity.toString().isNotEmpty) {
+        updatedData['cidade'] = _selectedCity.toString();
+      }
       // Adicione outros campos conforme necessário
       // Exemplo:
       // if (_newFieldController.text.isNotEmpty) {
