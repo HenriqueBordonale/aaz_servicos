@@ -29,4 +29,10 @@ class DatabaseMethods {
         .doc(idServico)
         .set(servicosInfoMap);
   }
+
+  Future addServicostoUserInfoToDB(Map<String, dynamic> servicosInfoMap) {
+    return FirebaseFirestore.instance
+        .collection("servicostoUser")
+        .add(servicosInfoMap);
+  }
 }

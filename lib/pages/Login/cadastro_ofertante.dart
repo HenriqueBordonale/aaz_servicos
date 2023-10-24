@@ -10,7 +10,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:cpf_cnpj_validator/cpf_validator.dart';
 import 'package:aaz_servicos/models/servicos.dart';
-import 'package:uuid/uuid.dart';
 
 class CadastroOfer extends StatefulWidget {
   const CadastroOfer({super.key});
@@ -21,9 +20,6 @@ class CadastroOfer extends StatefulWidget {
 
 Servicos minhaInstancia = Servicos();
 List<String> serv = minhaInstancia.get_Servicos;
-
-var uuid = Uuid();
-String idServ = uuid.v4();
 
 class _CadastroOfer extends State<CadastroOfer> {
   final maskCpf = MaskTextInputFormatter(
@@ -373,13 +369,11 @@ class _CadastroOfer extends State<CadastroOfer> {
                                             _selectedUF.toString(),
                                             _selectedCity.toString(),
                                             context);
-                                        await Servicos().createServico(
-                                            idServ,
-                                            _selectedServ.toString(),
-                                            especController.text,
-                                            context);
                                         await Servicos()
-                                            .updateIdServ(idServ)
+                                            .createServico(
+                                          _selectedServ.toString(),
+                                          especController.text,
+                                        )
                                             .then(
                                           (value) {
                                             Navigator.push(

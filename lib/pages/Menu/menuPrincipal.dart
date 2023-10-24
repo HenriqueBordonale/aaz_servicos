@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'dart:io';
 
+import '../Servicos/meuServico.dart';
+
 class menuPrincipal extends StatefulWidget {
   const menuPrincipal({super.key});
 
@@ -16,7 +18,7 @@ class _menuPrincipal extends State<menuPrincipal> {
   final List<Widget> _screens = [
     Screen1(),
     Screen2(),
-    Screen3(),
+    const servicos(),
     const Config(),
   ];
 

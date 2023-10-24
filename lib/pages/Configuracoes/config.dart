@@ -133,7 +133,10 @@ class _Config extends State<Config> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(221, 249, 74, 16),
-        title: const Text('Configurações'),
+        title: const Text(
+          'Configurações',
+          style: TextStyle(fontSize: 25, fontFamily: 'inter'),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
