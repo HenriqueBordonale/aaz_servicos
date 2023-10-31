@@ -1,6 +1,7 @@
 import 'package:aaz_servicos/pages/Configuracoes/config.dart';
 import 'package:aaz_servicos/pages/Login/cadastro_ofertante.dart';
 import 'package:aaz_servicos/pages/Login/esqueceu_senha.dart';
+import 'package:aaz_servicos/pages/Perfil_Profissional/perfilPro.dart';
 import 'package:aaz_servicos/pages/Servicos/meuServico.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
         'cadastro_servico': (context) => const CadastroOfer(),
         'configuracao': (context) => const Config(),
         'servicos': (context) => const servicos(),
+        'perfil profissional': (context) => const perfilprofissional(),
       },
     );
   }

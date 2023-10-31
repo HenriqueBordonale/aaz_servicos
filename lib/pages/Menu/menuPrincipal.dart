@@ -1,4 +1,5 @@
 import 'package:aaz_servicos/pages/Configuracoes/config.dart';
+import 'package:aaz_servicos/pages/Perfil_Profissional/perfilPro.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'dart:io';
@@ -16,7 +17,6 @@ class _menuPrincipal extends State<menuPrincipal> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    Screen1(),
     Screen2(),
     const servicos(),
     const Config(),
@@ -30,11 +30,6 @@ class _menuPrincipal extends State<menuPrincipal> {
         index: _currentIndex,
         height: 50.0,
         items: <Widget>[
-          Icon(
-            Icons.dashboard,
-            size: 30,
-            color: Colors.white,
-          ),
           Icon(
             Icons.message,
             size: 30,
@@ -62,15 +57,6 @@ class _menuPrincipal extends State<menuPrincipal> {
           });
         },
       ),
-    );
-  }
-}
-
-class Screen1 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Tela 1'),
     );
   }
 }

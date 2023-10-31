@@ -2,6 +2,7 @@ import 'package:aaz_servicos/pages/Login/cadastro.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
 import 'package:flutter/material.dart';
 
+// ignore: camel_case_types
 class selecao_usuario extends StatelessWidget {
   const selecao_usuario({super.key});
 

@@ -2,7 +2,6 @@ import 'package:aaz_servicos/pages/Login/cadastro_ofertante.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:aaz_servicos/models/auth.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -391,35 +390,5 @@ class _Cadastro extends State<Cadastro> {
         ),
       ),
     ]));
-  }
-
-  void criarConta(String nome, String email, String senha, String data,
-      String genero, context) async {
-    UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-        email: email, password: senha);
-
-    Map<String, dynamic> userInfoMap = {
-      'nome': nome,
-      'email': email,
-      'data': data,
-      'genero': genero,
-    };
-
-    if (userCredential != null) {
-      DatabaseMethods().addUserInfoToDB(auth.currentUser!.uid, userInfoMap);
-    }
-  }
-}
-
-class DatabaseMethods {
-  Future addUserInfoToDB(String userId, Map<String, dynamic> userInfoMap) {
-    return FirebaseFirestore.instance
-        .collection("users")
-        .doc(userId)
-        .set(userInfoMap);
-  }
-
-  Future<DocumentSnapshot> getUserFromDB(String userId) async {
-    return FirebaseFirestore.instance.collection("users").doc(userId).get();
   }
 }

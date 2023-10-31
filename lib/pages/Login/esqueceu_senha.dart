@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:aaz_servicos/pages/Login/login.dart';
-import 'package:aaz_servicos/pages/Login/cadastro.dart';
 
 class esqueceu_senha extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();

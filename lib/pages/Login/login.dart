@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:aaz_servicos/pages/Login/cadastro.dart';
 import 'package:aaz_servicos/pages/Login/selecao_usuario.dart';
 import 'package:flutter/material.dart';
-import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 import 'package:aaz_servicos/models/auth.dart';
 
 class login extends StatelessWidget {
@@ -175,7 +174,7 @@ class login extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(top: 690, left: 140),
+          padding: const EdgeInsets.only(top: 680, left: 140),
           child: SizedBox(
             height: 40,
             child: TextButton(

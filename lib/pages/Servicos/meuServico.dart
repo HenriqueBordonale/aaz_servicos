@@ -1,8 +1,9 @@
+// ignore: file_names
+import 'package:aaz_servicos/pages/Perfil_Profissional/perfilPro.dart';
 import 'package:aaz_servicos/pages/Servicos/servicoCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
 import 'package:aaz_servicos/models/servicos.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
@@ -75,24 +76,32 @@ class _servicos extends State<servicos> {
               itemCount: servicos.length,
               itemBuilder: (context, index) {
                 return ServicoCard(
-                  nome: servicos[index].nome,
-                  especificacao: servicos[index].especificacao,
-                  onDelete: () {
-                    deleteServico(servicos[index].idServico);
-                  },
-                  onEdit: () {
-                    _showEditServicoBottomSheet(context, servicos[index]);
-                  },
-                );
+                    nome: servicos[index].nome,
+                    especificacao: servicos[index].especificacao,
+                    onDelete: () {
+                      deleteServico(servicos[index].idServico);
+                    },
+                    onEdit: () {
+                      _showEditServicoBottomSheet(context, servicos[index]);
+                    },
+                    onCadastrarPerfil: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => perfilprofissional(),
+                        ),
+                      );
+                    });
               },
             ),
             const SizedBox(
               height: 10,
             ),
             IconButton(
-              iconSize: 50,
+              iconSize: 60,
               alignment: Alignment.bottomLeft,
               icon: Icon(Icons.add_circle),
+              color: const Color.fromARGB(255, 66, 66, 66),
               onPressed: () {
                 _showAddServicoBottomSheet(context);
               },

@@ -366,8 +366,8 @@ class _CadastroOfer extends State<CadastroOfer> {
                                       try {
                                         adicionarOfertante(
                                             cpfController.text,
-                                            _selectedUF.toString(),
                                             _selectedCity.toString(),
+                                            _selectedUF.toString(),
                                             context);
                                         await Servicos()
                                             .createServico(
