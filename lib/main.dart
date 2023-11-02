@@ -35,7 +35,16 @@ class MyApp extends StatelessWidget {
         'cadastro_servico': (context) => const CadastroOfer(),
         'configuracao': (context) => const Config(),
         'servicos': (context) => const servicos(),
-        'perfil profissional': (context) => const perfilprofissional(),
+        'perfilprofissional': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments
+                  as Map<String, dynamic>? ??
+              {};
+          final idServico = arguments['idServico'] as String;
+
+          return perfilprofissional(
+              idServico:
+                  idServico); // Certifique-se de passar idServico como argumento nomeado
+        },
       },
     );
   }

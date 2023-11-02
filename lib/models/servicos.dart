@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class Servicos {
   final FirebaseAuth auth = FirebaseAuth.instance;
-
+  String idofer = FirebaseAuth.instance.currentUser!.uid;
   List<String> get get_Servicos {
     return [
       'Músico',
@@ -35,13 +35,12 @@ class Servicos {
 
   Future<void> createServico(String nome, String especificacao) async {
     try {
-      String idofer = FirebaseAuth.instance.currentUser!.uid;
-
       DocumentReference docRef =
           await FirebaseFirestore.instance.collection('servicos').add({
         'userId': idofer,
         'nome': nome,
         'especificacao': especificacao,
+        'idPerfil': '',
       });
 
       String idDoDocumento = docRef.id;
@@ -49,6 +48,52 @@ class Servicos {
       print('Serviço criado com sucesso. ID do documento: $idDoDocumento');
     } catch (e) {
       print('Erro ao criar serviço: $e');
+    }
+  }
+
+  Future<void> addPerfilToServico(String idServico, String idPerfil) async {
+    try {
+      // Primeiro, obtenha o documento do serviço pelo idServico
+      final servicoDoc = await FirebaseFirestore.instance
+          .collection('servicos')
+          .doc(idServico)
+          .get();
+
+      if (servicoDoc.exists) {
+        // O documento do serviço existe, agora você pode atualizá-lo
+        await FirebaseFirestore.instance
+            .collection('servicos')
+            .doc(idServico)
+            .update({'idPerfil': idPerfil});
+        print('Perfil vinculado ao serviço com sucesso.');
+      } else {
+        print(
+            'Serviço não encontrado. Certifique-se de que o idServico seja válido.');
+      }
+    } catch (e) {
+      print('Erro ao vincular perfil ao serviço: $e');
+    }
+  }
+
+  Future<bool> verificarIdPerfil(String idServico) async {
+    try {
+      final servicoDoc = await FirebaseFirestore.instance
+          .collection('servicos')
+          .doc(idServico)
+          .get();
+
+      if (servicoDoc.exists) {
+        // Verifique se o campo 'idPerfil' existe no documento do serviço
+        final data = servicoDoc.data() as Map<String, dynamic>;
+        return data.containsKey('idPerfil');
+      } else {
+        print(
+            'Serviço não encontrado. Certifique-se de que o idServico seja válido.');
+        return false;
+      }
+    } catch (e) {
+      print('Erro ao verificar idPerfil do serviço: $e');
+      return false;
     }
   }
 }

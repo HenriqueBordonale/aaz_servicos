@@ -6,9 +6,12 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:aaz_servicos/models/servicos.dart';
 
 class perfilprofissional extends StatefulWidget {
-  const perfilprofissional({super.key});
+  final String idServico;
+
+  perfilprofissional({required this.idServico});
 
   @override
   State<perfilprofissional> createState() => _perfilprofissional();
@@ -51,6 +54,10 @@ class _perfilprofissional extends State<perfilprofissional> {
         ),
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.only(
+          left: 15,
+          right: 15,
+        ),
         child: Column(
           children: [
             const SizedBox(
@@ -183,6 +190,30 @@ class _perfilprofissional extends State<perfilprofissional> {
               thickness: 0.5,
               color: Color.fromARGB(255, 0, 0, 0),
             ),
+            Positioned(
+              left: 16,
+              bottom: 10,
+              child: ElevatedButton(
+                onPressed: () async {
+                  final idPerfil = await Perfil()
+                      .createPerfil(widget.idServico, descricao.toString());
+                  if (idPerfil != null) {
+                    Servicos().addPerfilToServico(widget.idServico, idPerfil);
+                  } else {
+                    print(
+                        'Falha ao criar o perfil, portanto, não foi possível vinculá-lo ao serviço.');
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.deepOrange, // Cor DeepOrange
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                        30), // Ajuste o valor conforme desejado
+                  ),
+                ),
+                child: Text("Criar Perfil"),
+              ),
+            )
           ],
         ),
       ),

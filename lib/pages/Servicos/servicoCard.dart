@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class Servico {
   final String nome;
   final String especificacao;
-  final String idServico; // Adicione o campo idServico
+  final String idServico;
+  final String idPerfil;
 
   Servico({
     required this.nome,
     required this.especificacao,
     required this.idServico,
+    this.idPerfil = 'inexistente', // Use 'inexistente' como valor padrão
   });
 }
 
@@ -17,8 +19,8 @@ class ServicoCard extends StatelessWidget {
   final String especificacao;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
-  final VoidCallback
-      onCadastrarPerfil; // Callback para o botão "Cadastrar Perfil"
+  final VoidCallback onCadastrarPerfil;
+  final String? idPerfil; // Alterado para String? para aceitar null
 
   ServicoCard({
     required this.nome,
@@ -26,6 +28,7 @@ class ServicoCard extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     required this.onCadastrarPerfil,
+    this.idPerfil, // Atualizado para aceitar String? ou null
   });
 
   @override
@@ -98,20 +101,10 @@ class ServicoCard extends StatelessWidget {
           left: 16,
           bottom: 10,
           child: ElevatedButton(
-            onPressed: onCadastrarPerfil,
-            style: ElevatedButton.styleFrom(
-              primary: Colors.deepOrange, // Cor DeepOrange
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(
-                    30), // Ajuste o valor conforme desejado
-              ),
-            ),
-            child: Text(
-              'Cadastrar Perfil',
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
+            onPressed: idPerfil != null ? onEdit : onCadastrarPerfil,
+            child: Text(idPerfil != null
+                ? 'Editar Perfil'
+                : 'Criar Perfil'), // Mude o texto com base em idPerfil
           ),
         ),
       ],

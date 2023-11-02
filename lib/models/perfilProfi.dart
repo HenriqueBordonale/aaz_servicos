@@ -5,23 +5,23 @@ class Perfil {
   final FirebaseAuth auth = FirebaseAuth.instance;
   String idofer = FirebaseAuth.instance.currentUser!.uid;
 
-  Future<void> createPerfil(String idServ, String nome, String especificacao,
-      String descricao, int qtdeAvaliacoes, String notaGeral) async {
+  Future<String?> createPerfil(String idServico, String descricao) async {
     try {
-      DocumentReference docRef =
-          await FirebaseFirestore.instance.collection('perfilProfi').add({
-        'userId': idofer,
-        'servicoId': idServ,
-        'nome': nome,
-        'especificacao': especificacao,
+      // Crie o perfil no Firestore
+      final perfilDocRef =
+          await FirebaseFirestore.instance.collection('perfis').add({
+        'idServico': idServico,
         'descricao': descricao,
-        'qtdeAvaliacoes': qtdeAvaliacoes,
-        'notaGeral': notaGeral,
+        // Outros campos do perfil, se houver
       });
 
-      print('Perfil criado com sucesso.');
+      final idPerfil = perfilDocRef.id; // Obtenha o ID do perfil criado
+
+      print('Perfil criado com sucesso. ID do perfil: $idPerfil');
+      return idPerfil;
     } catch (e) {
-      print('Erro ao criar serviço: $e');
+      print('Erro ao criar o perfil: $e');
+      return null;
     }
   }
 
