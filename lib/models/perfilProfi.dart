@@ -18,10 +18,37 @@ class Perfil {
       final idPerfil = perfilDocRef.id; // Obtenha o ID do perfil criado
 
       print('Perfil criado com sucesso. ID do perfil: $idPerfil');
+
+      // Atualize o campo no documento da coleção 'servico' identificado por idServico
+      final servicoDocRef =
+          FirebaseFirestore.instance.collection('servicos').doc(idServico);
+      await servicoDocRef.update({
+        'idPerfil': idPerfil,
+        // Outros campos do serviço a serem atualizados, se houver
+      });
+
       return idPerfil;
     } catch (e) {
       print('Erro ao criar o perfil: $e');
       return null;
+    }
+  }
+
+  Future<void> updatePerfil(String idPerfil, String descricao) async {
+    try {
+      final perfilDocRef =
+          FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
+
+      // Atualize a descrição no documento do perfil
+      await perfilDocRef.update({
+        'descricao': descricao,
+        // Outros campos a serem atualizados, se houver
+      });
+
+      print(
+          'Descrição do perfil atualizada com sucesso. ID do perfil: $idPerfil');
+    } catch (e) {
+      print('Erro ao atualizar a descrição do perfil: $e');
     }
   }
 

@@ -6,7 +6,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:aaz_servicos/models/servicos.dart';
 
 class perfilprofissional extends StatefulWidget {
   final String idServico;
@@ -20,9 +19,9 @@ class perfilprofissional extends StatefulWidget {
 class _perfilprofissional extends State<perfilprofissional> {
   String? imageUrlPerfil;
   String? descricao;
-
+  String? idPerfil;
   String? imageUrlMidia;
-
+  bool perfilCriado = false;
   List<String> photoUrlsMidia = [];
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -31,10 +30,12 @@ class _perfilprofissional extends State<perfilprofissional> {
   @override
   void initState() {
     super.initState();
+    checkIfProfileExists();
     Perfil().consultarDocUser(onDataReceivedToUser);
     Perfil().consultarDocServico(onDataReceivedToServico);
     loadProfileImage();
     loadUserPhotos();
+    loadInfoPerfil();
   }
 
   String nome = '';
@@ -51,6 +52,14 @@ class _perfilprofissional extends State<perfilprofissional> {
         title: const Text(
           'Cadastrar Perfil',
           style: TextStyle(fontSize: 25, fontFamily: 'inter'),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            // Adicione aqui o comportamento desejado ao clicar na seta de voltar
+            Navigator.of(context)
+                .pop(true); // Exemplo: voltar para a tela anterior
+          },
         ),
       ),
       body: SingleChildScrollView(
@@ -78,21 +87,36 @@ class _perfilprofissional extends State<perfilprofissional> {
                     : const Icon(
                         Icons.account_circle,
                       ),
-                SizedBox(width: 20),
+                const SizedBox(width: 25),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         '$nome',
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(
+                        height: 10,
+                      ),
                       Text('CARREGANDO'),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text('$servico'),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text('$especificacao'),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text('$cidade - $uf'),
-                      Text('CARREGANDO'),
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Text('Contratações'),
                     ],
                   ),
                 ),
@@ -104,7 +128,11 @@ class _perfilprofissional extends State<perfilprofissional> {
               color: Color.fromARGB(255, 0, 0, 0),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(
+                top: 3,
+                left: 10,
+                right: 10,
+              ),
               child: Column(children: [
                 Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,9 +160,16 @@ class _perfilprofissional extends State<perfilprofissional> {
             SizedBox(
               height: 15,
             ),
-            Text(
-              '$descricao',
-              style: TextStyle(fontSize: 15),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 3,
+                left: 20,
+                right: 20,
+              ),
+              child: Text(
+                '$descricao',
+                style: TextStyle(fontSize: 15),
+              ),
             ),
             const Divider(
               height: 30,
@@ -142,7 +177,11 @@ class _perfilprofissional extends State<perfilprofissional> {
               color: Color.fromARGB(255, 0, 0, 0),
             ),
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.only(
+                top: 3,
+                left: 10,
+                right: 10,
+              ),
               child: Column(
                 children: [
                   Row(
@@ -167,20 +206,25 @@ class _perfilprofissional extends State<perfilprofissional> {
                       ),
                     ],
                   ),
-
                   const SizedBox(
                     height: 15,
                   ),
-                  // Manter o GridView.builder aqui
-                  GridView.builder(
-                    shrinkWrap: true,
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 3,
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      top: 3,
+                      left: 20,
+                      right: 20,
                     ),
-                    itemCount: photoUrlsMidia.length,
-                    itemBuilder: (context, index) {
-                      return Image.network(photoUrlsMidia[index]);
-                    },
+                    child: GridView.builder(
+                      shrinkWrap: true,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 3,
+                      ),
+                      itemCount: photoUrlsMidia.length,
+                      itemBuilder: (context, index) {
+                        return Image.network(photoUrlsMidia[index]);
+                      },
+                    ),
                   ),
                 ],
               ),
@@ -194,30 +238,58 @@ class _perfilprofissional extends State<perfilprofissional> {
               left: 16,
               bottom: 10,
               child: ElevatedButton(
-                onPressed: () async {
-                  final idPerfil = await Perfil()
-                      .createPerfil(widget.idServico, descricao.toString());
-                  if (idPerfil != null) {
-                    Servicos().addPerfilToServico(widget.idServico, idPerfil);
+                onPressed: () {
+                  if (perfilCriado == true) {
+                    // Lógica para editar o perfil
+                    print('Editar Perfil');
+                    // Chame a função de edição do perfil aqui
+                    Perfil().updatePerfil(
+                        idPerfil.toString(), descricao.toString());
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Perfil atualizado com sucesso!'),
+                    ));
                   } else {
-                    print(
-                        'Falha ao criar o perfil, portanto, não foi possível vinculá-lo ao serviço.');
+                    // Lógica para criar um perfil
+                    print('Criar Perfil');
+                    // Chame a função de criação do perfil aqui
+                    Perfil().createPerfil(
+                        widget.idServico.toString(), descricao.toString());
+                    setState(() {
+                      perfilCriado = true;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text('Perfil criado com sucesso!'),
+                    ));
                   }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.deepOrange, // Cor DeepOrange
+                  primary: perfilCriado ? Colors.green : Colors.orange,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                        30), // Ajuste o valor conforme desejado
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                child: Text("Criar Perfil"),
+                child: Text(perfilCriado ? "Editar Perfil" : "Criar Perfil"),
               ),
-            )
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Future<void> checkIfProfileExists() async {
+    final profilesCollection = FirebaseFirestore.instance.collection('perfis');
+    final querySnapshot = await profilesCollection
+        .where('idServico', isEqualTo: widget.idServico)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      // Um perfil com o mesmo idServico já existe
+      setState(() {
+        perfilCriado = true;
+        idPerfil = querySnapshot.docs.first.id;
+      });
+    }
   }
 
   Future<void> loadUserPhotos() async {
@@ -233,6 +305,20 @@ class _perfilprofissional extends State<perfilprofissional> {
           });
         }
       }
+    }
+  }
+
+  Future<void> loadInfoPerfil() async {
+    final profilesCollection = FirebaseFirestore.instance.collection('perfis');
+    final querySnapshot = await profilesCollection
+        .where('idServico', isEqualTo: widget.idServico)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final descricaoDoc = querySnapshot.docs.first.data()?['descricao'];
+      setState(() {
+        descricao = descricaoDoc as String?;
+      });
     }
   }
 

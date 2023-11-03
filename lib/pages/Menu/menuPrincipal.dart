@@ -18,7 +18,7 @@ class _menuPrincipal extends State<menuPrincipal> {
 
   final List<Widget> _screens = [
     Screen2(),
-    const servicos(),
+    servicos(),
     const Config(),
   ];
 

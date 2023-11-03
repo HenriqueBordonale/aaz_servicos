@@ -74,26 +74,4 @@ class Servicos {
       print('Erro ao vincular perfil ao serviço: $e');
     }
   }
-
-  Future<bool> verificarIdPerfil(String idServico) async {
-    try {
-      final servicoDoc = await FirebaseFirestore.instance
-          .collection('servicos')
-          .doc(idServico)
-          .get();
-
-      if (servicoDoc.exists) {
-        // Verifique se o campo 'idPerfil' existe no documento do serviço
-        final data = servicoDoc.data() as Map<String, dynamic>;
-        return data.containsKey('idPerfil');
-      } else {
-        print(
-            'Serviço não encontrado. Certifique-se de que o idServico seja válido.');
-        return false;
-      }
-    } catch (e) {
-      print('Erro ao verificar idPerfil do serviço: $e');
-      return false;
-    }
-  }
 }

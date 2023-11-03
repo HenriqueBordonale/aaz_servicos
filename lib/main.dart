@@ -14,18 +14,36 @@ import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
+
+  MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'AaZ Serviços',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primaryColor: Colors.deepOrange),
+      scaffoldMessengerKey:
+          scaffoldMessengerKey, // Defina a chave do ScaffoldMessenger aqui
+      theme: ThemeData(
+        primaryColor: Colors.deepOrange,
+        snackBarTheme: SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          contentTextStyle: TextStyle(
+            color: Color.fromARGB(219, 0, 0, 0),
+            fontSize: 16.0,
+          ),
+          backgroundColor: Color.fromARGB(255, 229, 229, 230),
+        ),
+      ),
       home: const selecao_usuario(),
       routes: {
         'login': (context) => login(),

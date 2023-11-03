@@ -6,12 +6,11 @@ class Servico {
   final String idServico;
   final String idPerfil;
 
-  Servico({
-    required this.nome,
-    required this.especificacao,
-    required this.idServico,
-    this.idPerfil = 'inexistente', // Use 'inexistente' como valor padrão
-  });
+  Servico(
+      {required this.nome,
+      required this.especificacao,
+      required this.idServico,
+      required this.idPerfil});
 }
 
 class ServicoCard extends StatelessWidget {
@@ -20,7 +19,7 @@ class ServicoCard extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onEdit;
   final VoidCallback onCadastrarPerfil;
-  final String? idPerfil; // Alterado para String? para aceitar null
+  final String idPerfil; // Alterado para String? para aceitar null
 
   ServicoCard({
     required this.nome,
@@ -28,7 +27,7 @@ class ServicoCard extends StatelessWidget {
     required this.onDelete,
     required this.onEdit,
     required this.onCadastrarPerfil,
-    this.idPerfil, // Atualizado para aceitar String? ou null
+    required this.idPerfil, // Atualizado para aceitar String? ou null
   });
 
   @override
@@ -80,7 +79,7 @@ class ServicoCard extends StatelessWidget {
                   IconButton(
                     icon: Icon(
                       Icons.edit,
-                      color: Color.fromARGB(255, 63, 62, 62),
+                      color: Color.fromARGB(255, 49, 49, 49),
                     ),
                     onPressed: onEdit,
                   ),
@@ -88,9 +87,38 @@ class ServicoCard extends StatelessWidget {
                     icon: Icon(
                       Icons.delete,
                       color: Color.fromARGB(
-                          255, 182, 25, 25), // Cor do ícone de exclusão
+                          255, 204, 31, 31), // Cor do ícone de exclusão
                     ),
-                    onPressed: onDelete,
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Confirmação de Exclusão'),
+                            content: Text(
+                                'Tem certeza de que deseja excluir este item?'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context)
+                                      .pop(); // Fecha o AlertDialog
+                                },
+                                child: Text('Cancelar'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  // Adicione aqui a lógica para exclusão do item
+                                  onDelete();
+                                  Navigator.of(context)
+                                      .pop(); // Fecha o AlertDialog
+                                },
+                                child: Text('Confirmar'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                 ],
               ),
@@ -98,13 +126,25 @@ class ServicoCard extends StatelessWidget {
           ),
         ),
         Positioned(
-          left: 16,
-          bottom: 10,
+          left: 20,
+          bottom: 14,
           child: ElevatedButton(
-            onPressed: idPerfil != null ? onEdit : onCadastrarPerfil,
-            child: Text(idPerfil != null
-                ? 'Editar Perfil'
-                : 'Criar Perfil'), // Mude o texto com base em idPerfil
+            onPressed: onCadastrarPerfil,
+            style: ButtonStyle(
+              backgroundColor: MaterialStateProperty.all(
+                idPerfil == '' ? Colors.orange : Colors.green,
+              ),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                      10.0), // Ajuste o valor conforme necessário
+                ),
+              ),
+            ),
+            child: Text(
+              idPerfil == '' ? 'Criar Perfil' : 'Editar Perfil',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ),
       ],

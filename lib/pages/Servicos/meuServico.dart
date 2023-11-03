@@ -29,32 +29,8 @@ class _servicos extends State<servicos> {
 
   Future<void> _loadServicos() async {
     List<Servico> servicosList = await getServicos(userId);
-    List<Servico> updatedServicosList = [];
-
-    // Use um forEach para percorrer a lista de serviços e verificar o idPerfil
-    await Future.forEach(servicosList, (Servico servico) async {
-      // Verifique se o campo idPerfil existe no objeto Servico antes de acessá-lo
-      if (servico.idPerfil == 'inexistente') {
-        // Se o campo idPerfil for 'inexistente', não faça nada, pois já é o valor padrão.
-        updatedServicosList.add(servico);
-      } else {
-        bool idPerfilBuscado =
-            await Servicos().verificarIdPerfil(servico.idServico);
-        // Crie um novo objeto Servico com o valor de idPerfil atualizado
-        Servico updatedServico = Servico(
-          nome: servico.nome,
-          especificacao: servico.especificacao,
-          idServico: servico.idServico,
-          idPerfil: idPerfilBuscado
-              ? 'true'
-              : 'false', // Use 'true' ou 'false' como valores para representar booleanos
-        );
-        updatedServicosList.add(updatedServico);
-      }
-    });
-
     setState(() {
-      servicos = updatedServicosList;
+      servicos = servicosList;
     });
   }
 
@@ -98,8 +74,6 @@ class _servicos extends State<servicos> {
               physics: NeverScrollableScrollPhysics(),
               itemCount: servicos.length,
               itemBuilder: (context, index) {
-                bool temIdPerfil = servicos[index].idPerfil != null;
-
                 return ServicoCard(
                   nome: servicos[index].nome,
                   especificacao: servicos[index].especificacao,
@@ -110,15 +84,19 @@ class _servicos extends State<servicos> {
                     _showEditServicoBottomSheet(context, servicos[index]);
                   },
                   onCadastrarPerfil: () async {
-                    Navigator.push(
-                      context,
+                    final result = await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => perfilprofissional(
                           idServico: servicos[index].idServico,
                         ),
                       ),
                     );
+
+                    if (result == true) {
+                      await _loadServicos(); // Recarrega a lista após o retorno
+                    }
                   },
+                  idPerfil: servicos[index].idPerfil,
                 );
               },
             ),
@@ -422,17 +400,14 @@ class _servicos extends State<servicos> {
         final idServico = document.id;
         final nome = document['nome'];
         final especificacao = document['especificacao'];
+        final idPerfil = document['idPerfil'];
 
-        String? idPerfil = document['idPerfil'];
-
-        if (idPerfil != null) {
-          servicosList.add(Servico(
-            idServico: idServico,
-            nome: nome,
-            especificacao: especificacao,
-            idPerfil: idPerfil,
-          ));
-        }
+        servicosList.add(Servico(
+          idServico: idServico,
+          nome: nome,
+          especificacao: especificacao,
+          idPerfil: idPerfil,
+        ));
       }
     } catch (e) {
       print('Erro ao buscar os serviços: $e');
