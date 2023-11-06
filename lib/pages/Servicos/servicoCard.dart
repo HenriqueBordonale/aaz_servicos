@@ -87,7 +87,7 @@ class ServicoCard extends StatelessWidget {
                     icon: Icon(
                       Icons.delete,
                       color: Color.fromARGB(
-                          255, 204, 31, 31), // Cor do ícone de exclusão
+                          202, 204, 31, 31), // Cor do ícone de exclusão
                     ),
                     onPressed: () {
                       showDialog(
@@ -132,7 +132,9 @@ class ServicoCard extends StatelessWidget {
             onPressed: onCadastrarPerfil,
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(
-                idPerfil == '' ? Colors.orange : Colors.green,
+                idPerfil == ''
+                    ? const Color.fromARGB(208, 255, 153, 0)
+                    : const Color.fromARGB(212, 76, 175, 79),
               ),
               shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                 RoundedRectangleBorder(

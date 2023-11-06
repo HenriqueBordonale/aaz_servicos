@@ -107,7 +107,7 @@ class _servicos extends State<servicos> {
               iconSize: 60,
               alignment: Alignment.bottomLeft,
               icon: Icon(Icons.add_circle),
-              color: const Color.fromARGB(255, 66, 66, 66),
+              color: Color.fromARGB(62, 6, 6, 6),
               onPressed: () {
                 _showAddServicoBottomSheet(context);
               },
@@ -134,7 +134,7 @@ class _servicos extends State<servicos> {
                 children: [
                   Icon(
                     Icons.add,
-                    color: Colors.deepOrange,
+                    color: Color.fromARGB(217, 255, 86, 34),
                     size: 25, // Tamanho do ícone
                   ),
                   SizedBox(width: 8), // Espaçamento entre o ícone e o texto
@@ -161,7 +161,7 @@ class _servicos extends State<servicos> {
                 iconStyleData: const IconStyleData(
                   icon: Icon(
                     Icons.arrow_drop_down,
-                    color: Colors.deepOrange,
+                    color: Color.fromARGB(200, 255, 86, 34),
                     size: 24, // Tamanho do ícone
                   ),
                 ),
@@ -190,8 +190,8 @@ class _servicos extends State<servicos> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide(
-                      color: Colors
-                          .deepOrange, // Cor desejada quando o campo está em foco
+                      color: const Color.fromARGB(163, 255, 86,
+                          34), // Cor desejada quando o campo está em foco
                     ),
                   ),
                 ),
@@ -199,7 +199,7 @@ class _servicos extends State<servicos> {
               SizedBox(height: 16),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.deepOrange,
+                  primary: Color.fromARGB(200, 255, 86, 34),
                   padding:
                       EdgeInsets.symmetric(vertical: 16), // Espaçamento interno
                   shape: RoundedRectangleBorder(
@@ -266,7 +266,7 @@ class _servicos extends State<servicos> {
                 children: [
                   Icon(
                     Icons.edit,
-                    color: Colors.deepOrange,
+                    color: Color.fromARGB(200, 255, 86, 34),
                     size: 20, // Tamanho do ícone
                   ),
                   SizedBox(width: 8), // Espaçamento entre o ícone e o texto
@@ -293,7 +293,7 @@ class _servicos extends State<servicos> {
                 iconStyleData: const IconStyleData(
                   icon: Icon(
                     Icons.arrow_drop_down,
-                    color: Colors.deepOrange,
+                    color: Color.fromARGB(200, 255, 86, 34),
                     size: 24, // Tamanho do ícone
                   ),
                 ),
@@ -322,8 +322,8 @@ class _servicos extends State<servicos> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(15),
                     borderSide: BorderSide(
-                      color: Colors
-                          .deepOrange, // Cor desejada quando o campo está em foco
+                      color: Color.fromARGB(200, 255, 86,
+                          34), // Cor desejada quando o campo está em foco
                     ),
                   ),
                 ),
@@ -331,7 +331,8 @@ class _servicos extends State<servicos> {
               SizedBox(height: 16),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.deepOrange, // Cor de fundo do botão
+                  primary:
+                      Color.fromARGB(200, 255, 86, 34), // Cor de fundo do botão
                   padding:
                       EdgeInsets.symmetric(vertical: 16), // Espaçamento interno
                   shape: RoundedRectangleBorder(
@@ -419,6 +420,23 @@ class _servicos extends State<servicos> {
 
   Future<void> deleteServico(String idServico) async {
     try {
+      // Primeiro, você pode buscar o documento na coleção 'perfil' com base no campo 'idServico'
+      QuerySnapshot perfilQuery = await FirebaseFirestore.instance
+          .collection('perfis')
+          .where('idServico', isEqualTo: idServico)
+          .get();
+
+      if (perfilQuery.docs.isNotEmpty) {
+        // Se houver documentos correspondentes na coleção 'perfil', exclua-os
+        for (QueryDocumentSnapshot doc in perfilQuery.docs) {
+          await FirebaseFirestore.instance
+              .collection('perfis')
+              .doc(doc.id)
+              .delete();
+        }
+      }
+
+      // Em seguida, você pode excluir o documento na coleção 'servicos'
       await FirebaseFirestore.instance
           .collection('servicos')
           .doc(idServico)

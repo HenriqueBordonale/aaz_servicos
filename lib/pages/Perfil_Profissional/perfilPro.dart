@@ -122,154 +122,189 @@ class _perfilprofissional extends State<perfilprofissional> {
                 ),
               ],
             ),
-            const Divider(
-              height: 30,
-              thickness: 0.5,
-              color: Color.fromARGB(255, 0, 0, 0),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 3,
-                left: 10,
-                right: 10,
-              ),
-              child: Column(children: [
-                Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Descrição',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          _showEditDescriptionModal(context);
-                        },
-                        child: Row(
-                          children: [
-                            Text('Alterar Descrição'),
-                            SizedBox(width: 8),
-                            Icon(Icons.edit),
-                          ],
-                        ),
-                      ),
-                    ]),
-              ]),
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 3,
-                left: 20,
-                right: 20,
-              ),
-              child: Text(
-                '$descricao',
-                style: TextStyle(fontSize: 15),
-              ),
-            ),
-            const Divider(
-              height: 30,
-              thickness: 0.5,
-              color: Color.fromARGB(255, 0, 0, 0),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 3,
-                left: 10,
-                right: 10,
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Fotos',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                        onTap: () {
-                          uploadImage();
-                        },
-                        child: Row(
-                          children: [
-                            Text('Enviar Fotos'),
-                            SizedBox(width: 8),
-                            Icon(Icons.camera_alt),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 3,
-                      left: 20,
-                      right: 20,
-                    ),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                      ),
-                      itemCount: photoUrlsMidia.length,
-                      itemBuilder: (context, index) {
-                        return Image.network(photoUrlsMidia[index]);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(
-              height: 30,
-              thickness: 0.5,
-              color: Color.fromARGB(255, 0, 0, 0),
-            ),
-            Positioned(
-              left: 16,
-              bottom: 10,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (perfilCriado == true) {
-                    // Lógica para editar o perfil
-                    print('Editar Perfil');
-                    // Chame a função de edição do perfil aqui
-                    Perfil().updatePerfil(
-                        idPerfil.toString(), descricao.toString());
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Perfil atualizado com sucesso!'),
-                    ));
-                  } else {
-                    // Lógica para criar um perfil
-                    print('Criar Perfil');
-                    // Chame a função de criação do perfil aqui
-                    Perfil().createPerfil(
-                        widget.idServico.toString(), descricao.toString());
-                    setState(() {
-                      perfilCriado = true;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      content: Text('Perfil criado com sucesso!'),
-                    ));
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: perfilCriado ? Colors.green : Colors.orange,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(150, 238, 237, 237),
+                border: Border.all(
+                  color: Color.fromARGB(255, 211, 209, 209),
                 ),
-                child: Text(perfilCriado ? "Editar Perfil" : "Criar Perfil"),
+                borderRadius: BorderRadius.circular(10),
               ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 3,
+                  left: 10,
+                  right: 10,
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Descrição',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            _showEditDescriptionModal(context);
+                          },
+                          child: Row(
+                            children: [
+                              Text('Alterar Descrição'),
+                              SizedBox(width: 8),
+                              Icon(Icons.edit),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(
+                      color: Colors.grey, // Cor do divisor
+                      height: 25, // Altura do divisor
+                      thickness: 0.8, // Espessura do divisor
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 3,
+                        left: 20,
+                        right: 20,
+                      ),
+                      child: Text(
+                        descricao ?? '"Escreva sobre você ou seu serviço"',
+                        style: TextStyle(fontSize: 15),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20), // Espaçamento entre blocos
+
+            // Bloco 3: Fotos
+            Container(
+              padding: const EdgeInsets.all(15),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(150, 238, 237, 237),
+                border: Border.all(
+                  color: Color.fromARGB(255, 211, 209, 209),
+                ),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  top: 3,
+                  left: 10,
+                  right: 10,
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Fotos',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            uploadImage(widget.idServico);
+                          },
+                          child: Row(
+                            children: [
+                              Text('Enviar Fotos'),
+                              SizedBox(width: 8),
+                              Icon(Icons.camera_alt),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const Divider(
+                      color: Colors.grey, // Cor do divisor
+                      height: 25, // Altura do divisor
+                      thickness: 1, // Espessura do divisor
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      height: 120, // Altura fixa das imagens
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: photoUrlsMidia.length > 3
+                            ? 3
+                            : photoUrlsMidia.length,
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: GestureDetector(
+                              onTap: () {
+                                openImageGallery(context, photoUrlsMidia);
+                              },
+                              child: Image.network(
+                                photoUrlsMidia[index],
+                                width: 120, // Largura fixa das imagens
+                                height: 120, // Altura fixa das imagens
+                                fit: BoxFit
+                                    .cover, // Pode ajustar a escala da imagem conforme necessário
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20), // Espaçamento entre blocos
+            ElevatedButton(
+              onPressed: () {
+                if (perfilCriado == true) {
+                  // Lógica para editar o perfil
+                  print('Editar Perfil');
+                  // Chame a função de edição do perfil aqui
+                  Perfil()
+                      .updatePerfil(idPerfil.toString(), descricao.toString());
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Perfil atualizado com sucesso!'),
+                  ));
+                } else {
+                  // Lógica para criar um perfil
+                  print('Criar Perfil');
+                  // Chame a função de criação do perfil aqui
+                  Perfil().createPerfil(
+                      widget.idServico.toString(), descricao.toString());
+                  setState(() {
+                    perfilCriado = true;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Perfil criado com sucesso!'),
+                  ));
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                primary: perfilCriado
+                    ? const Color.fromARGB(212, 76, 175, 79)
+                    : const Color.fromARGB(208, 255, 153, 0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: Text(perfilCriado ? "Salvar Perfil" : "Criar Perfil"),
             ),
           ],
         ),
@@ -293,12 +328,11 @@ class _perfilprofissional extends State<perfilprofissional> {
   }
 
   Future<void> loadUserPhotos() async {
-    final user = _auth.currentUser;
-    if (user != null) {
-      final userId = user.uid;
-      final userPhotos = await _firestore.collection('user').doc(userId).get();
-      if (userPhotos.exists) {
-        final photos = userPhotos.data()?['photos'] as List<dynamic>?;
+    if (widget.idServico != null) {
+      final perfilPhotos =
+          await _firestore.collection('servicos').doc(widget.idServico).get();
+      if (perfilPhotos.exists) {
+        final photos = perfilPhotos.data()?['photos'] as List<dynamic>?;
         if (photos != null) {
           setState(() {
             photoUrlsMidia = photos.map((url) => url.toString()).toList();
@@ -322,26 +356,25 @@ class _perfilprofissional extends State<perfilprofissional> {
     }
   }
 
-  Future<void> uploadImage() async {
+  Future<void> uploadImage(String idServico) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
       final file = File(pickedFile.path);
-      final user = _auth.currentUser;
-      if (user != null) {
-        final userId = user.uid;
-        final photoRef =
-            _storage.ref().child('user_photos/$userId/${DateTime.now()}.jpg');
+
+      if (idServico != null) {
+        final photoRef = FirebaseStorage.instance
+            .ref()
+            .child('midias_perfil/$idServico/${DateTime.now()}.jpg');
         await photoRef.putFile(file);
         final downloadUrl = await photoRef.getDownloadURL();
 
         // Atualize a lista de fotos no Firestore
-        final userPhotosRef = _firestore.collection('user').doc(userId);
-        await userPhotosRef.update({
+        final servicoRef = _firestore.collection('servicos').doc(idServico);
+        await servicoRef.update({
           'photos': FieldValue.arrayUnion([downloadUrl]),
         });
-
-        // Recarregue as fotos na tela
         loadUserPhotos();
       }
     }
@@ -398,9 +431,16 @@ class _perfilprofissional extends State<perfilprofissional> {
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               TextField(
+                decoration: const InputDecoration(
+                  focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                    color: Color.fromARGB(226, 236, 55, 45),
+                    width: 2,
+                  )),
+                ),
                 maxLength: 300, // Limite de 280 caracteres
                 maxLines: 5, // Permite várias linhas
-                controller: TextEditingController(text: descricao),
+                controller: TextEditingController(),
                 onChanged: (value) {
                   setState(() {
                     descricao = value;
@@ -408,6 +448,18 @@ class _perfilprofissional extends State<perfilprofissional> {
                 },
               ),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: Color.fromARGB(200, 255, 86, 34),
+                  padding:
+                      EdgeInsets.symmetric(vertical: 16), // Espaçamento interno
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(15), // Borda arredondada
+                  ),
+                  minimumSize: Size(100, 0), // Defina a largura mínima desejada
+                  alignment:
+                      Alignment.center, // Centralize o texto horizontalment
+                ),
                 onPressed: () {
                   Navigator.of(context).pop(); // Feche o modal de edição
                 },
@@ -418,5 +470,130 @@ class _perfilprofissional extends State<perfilprofissional> {
         );
       },
     );
+  }
+
+  // Função para exibir um diálogo de confirmação
+  Future<void> showDeleteConfirmationDialog(
+      BuildContext context, int index, List<String> imageUrls) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Confirmar Exclusão'),
+          content: Text('Tem certeza de que deseja excluir esta imagem?'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancelar'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Fecha o diálogo
+              },
+            ),
+            TextButton(
+              child: Text('Excluir'),
+              onPressed: () async {
+                // Fecha o diálogo
+                Navigator.of(context).pop();
+
+                // Mostre um AlertDialog com um indicador de carregamento
+
+                deleteImageFromStorage(imageUrls[index], widget.idServico);
+
+                // Remova a imagem da lista
+                imageUrls.removeAt(index);
+
+                // Atualize a lista de imagens na tela
+                setState(() {
+                  photoUrlsMidia = imageUrls;
+                });
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void openImageGallery(BuildContext context, List<String> imageUrls) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            color: Color.fromARGB(159, 233, 232, 232),
+            child: PageView.builder(
+              itemCount: imageUrls.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 300,
+                        child: Image.network(
+                          imageUrls[index],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                        constraints: BoxConstraints(
+                          maxWidth: 350,
+                        ),
+                        child: Divider(
+                          thickness: 1,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8),
+                        child: ElevatedButton.icon(
+                          icon: Icon(Icons.delete),
+                          label: Text('Excluir'),
+                          style: ElevatedButton.styleFrom(
+                            primary: const Color.fromARGB(179, 244, 67, 54),
+                          ),
+                          onPressed: () {
+                            showDeleteConfirmationDialog(
+                                context, index, imageUrls);
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> deleteImageFromStorage(String imageUrl, String idServico) async {
+    try {
+      // Exclua a imagem do Firebase Storage
+      final Reference imageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+      await imageRef.delete();
+
+      // Atualize o documento no Cloud Firestore para remover a referência da imagem
+      final servicoRef = _firestore.collection('servicos').doc(idServico);
+      final servicoDoc = await servicoRef.get();
+      if (servicoDoc.exists) {
+        final List<String> photos =
+            List<String>.from(servicoDoc['photos'] ?? []);
+        photos.remove(imageUrl); // Remova a URL da imagem da lista de fotos
+        await servicoRef
+            .update({'photos': photos}); // Atualize a lista no Firestore
+      }
+    } catch (e) {
+      print('Erro ao excluir imagem: $e');
+    }
   }
 }
