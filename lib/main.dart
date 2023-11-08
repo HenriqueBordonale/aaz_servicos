@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:aaz_servicos/pages/Login/selecao_usuario.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
 import 'package:aaz_servicos/pages/Login/cadastro.dart';
-import 'firebase_options.dart';
+import 'package:aaz_servicos/pages/Buscador/buscadorScreen.dart';
 import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 
 void main() async {
@@ -63,6 +63,7 @@ class MyApp extends StatelessWidget {
               idServico:
                   idServico); // Certifique-se de passar idServico como argumento nomeado
         },
+        'buscador': (context) => ServicosScreen(),
       },
     );
   }

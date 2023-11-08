@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aaz_servicos/models/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -36,97 +37,20 @@ class _Config extends State<Config> {
   File? imageFile;
   final picker = ImagePicker();
   String? imageUrl;
-
   @override
   void initState() {
     super.initState();
     _loadUFs();
     _loadUserData();
-    _checkIfImageExists();
+    LoadUrlImage();
   }
 
   CollectionReference _collectionReference =
       FirebaseFirestore.instance.collection("user");
 
-  Future<void> _loadUserData() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('Usuário não autenticado.');
-      return;
-    }
-
-    try {
-      final snapshot = await _collectionReference.doc(user.uid).get();
-      if (snapshot.exists) {
-        final data = snapshot.data() as Map<String, dynamic>;
-
-        setState(() {
-          nameController.text = data['nome'];
-          generoController.text = data['genero'];
-          _selectedUF = data['uf'];
-          _selectedCity = data['cidade'];
-          if (_selectedUF != null) {
-            _loadCities(
-                _selectedUF!); // Carregue as cidades apenas se _selectedUF não for nulo
-          }
-        });
-      }
-    } catch (error) {
-      print('Erro ao carregar dados do usuário: $error');
-    }
-  }
-
   List<String> _ufs = [];
   List<String> _cities = [];
   var especController = TextEditingController();
-
-  // Carregar a lista de UFs
-  Future<void> _loadUFs() async {
-    final response = await http.get(
-      Uri.parse('https://servicodados.ibge.gov.br/api/v1/localidades/estados'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        _ufs = data.map((uf) => uf['sigla']).cast<String>().toList();
-      });
-    } else {
-      throw Exception('Falha ao buscar UFs');
-    }
-  }
-
-  // Carregar a lista de cidades de uma UF específica
-  Future<void> _loadCities(String uf) async {
-    final response = await http.get(
-      Uri.parse(
-          'https://servicodados.ibge.gov.br/api/v1/localidades/estados/$uf/municipios'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        _cities = data.map((city) => city['nome']).cast<String>().toList();
-      });
-    } else {
-      throw Exception('Falha ao buscar cidades');
-    }
-  }
-
-  InputDecoration _getDropdownInputDecoration(bool isEnabled) {
-    return InputDecoration(
-      contentPadding: const EdgeInsets.symmetric(vertical: 15),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(15),
-        borderSide: BorderSide(
-          color: isEnabled
-              ? Color.fromARGB(226, 236, 55, 45)
-              : Colors
-                  .grey, // Defina a cor quando estiver habilitado e desabilitado
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +68,7 @@ class _Config extends State<Config> {
             Container(
               alignment: Alignment.topCenter,
               padding: const EdgeInsets.only(
-                top: 30,
+                top: 20,
               ),
               child: const Text(
                 'Minha Conta',
@@ -381,71 +305,91 @@ class _Config extends State<Config> {
               ),
             ),
             const SizedBox(
-              height: 20,
+              height: 10,
             ),
-            Container(
-              height: 55,
-              width: 300,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(30)),
-                gradient: LinearGradient(colors: [
-                  Color.fromARGB(221, 249, 74, 16),
-                  Color.fromARGB(226, 236, 55, 45),
-                ]),
-              ),
-              child: TextButton(
-                child: Text(
-                  _isEditing ? 'Salvar' : 'Editar',
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 234, 234, 234),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
-                onPressed: () {
-                  if (_isEditing) {
-                    // Chame o método de salvamento aqui
-                    _updateUserData();
-                  } else {
-                    setState(() {
-                      // Inverte o estado de edição
-                      _isEditing = true;
-                    });
-                  }
-                },
-              ),
+            Divider(
+              color: Colors.grey,
+              thickness: 1,
             ),
-            const SizedBox(
-              height: 15,
-            ),
-            Container(
-              height: 55,
-              width: 300,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(30)),
-                gradient: LinearGradient(colors: [
-                  Color.fromARGB(221, 249, 74, 16),
-                  Color.fromARGB(226, 236, 55, 45),
-                ]),
-              ),
-              child: TextButton(
-                child: Text(
-                  'Alterar senha',
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 234, 234, 234),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                  ),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => esqueceu_senha(),
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(
+                          8), // Espaçamento em todos os lados
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => esqueceu_senha(),
+                            ),
+                          );
+                        },
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.lock,
+                              color: Color.fromARGB(255, 68, 68, 68),
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'Alterar senha',
+                              style: TextStyle(
+                                color: Color.fromARGB(255, 68, 68, 68),
+                                fontFamily: 'inter',
+                                fontSize: 17,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  );
-                },
-              ),
+                    Padding(
+                      padding: const EdgeInsets.all(
+                          8), // Espaçamento em todos os lados
+                      child: TextButton(
+                        onPressed: () {
+                          if (_isEditing) {
+                            _updateUserData();
+                          } else {
+                            setState(() {
+                              _isEditing = true;
+                            });
+                          }
+                        },
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              _isEditing ? Icons.save : Icons.edit,
+                              size: 20,
+                              color: Color.fromARGB(255, 68, 68, 68),
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              _isEditing ? 'Salvar' : 'Editar',
+                              style: const TextStyle(
+                                color: Color.fromARGB(255, 68, 68, 68),
+                                fontFamily: 'inter',
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Divider(
+              color: Colors.grey, thickness: 1, // Adicione uma linha divisória
             ),
             const SizedBox(
               height: 15,
@@ -488,54 +432,7 @@ class _Config extends State<Config> {
       setState(() {
         imageFile = File(pickedFile.path);
       });
-      await uploadImage(imageFile!);
-    }
-  }
-
-  Future<void> uploadImage(File imageFile) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('Usuário não autenticado.');
-      return;
-    }
-
-    final storage = FirebaseStorage.instance;
-    final folderRef =
-        storage.ref().child('user_images/profile_images/${user.uid}');
-
-    // Exclua a imagem existente na pasta, se houver
-    try {
-      await folderRef.delete();
-    } catch (e) {
-      print('Nenhuma imagem para excluir.');
-    }
-
-    // Faça o upload da nova imagem
-    try {
-      await folderRef.putFile(imageFile);
-      print('Imagem enviada com sucesso.');
-    } catch (error) {
-      print('Erro ao enviar a imagem: $error');
-    }
-  }
-
-  Future<void> _checkIfImageExists() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('Usuário não autenticado.');
-      return;
-    }
-
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('user_images/profile_images/${user.uid}');
-    try {
-      final downloadUrl = await storageRef.getDownloadURL();
-      setState(() {
-        imageUrl = downloadUrl;
-      });
-    } catch (e) {
-      print('Nenhuma imagem encontrada no Firebase Storage.');
+      await DatabaseMethods().uploadImage(imageFile!);
     }
   }
 
@@ -582,6 +479,72 @@ class _Config extends State<Config> {
       print('Dados do usuário atualizados com sucesso.');
     } catch (error) {
       print('Erro ao atualizar os dados do usuário: $error');
+    }
+  }
+
+  // Carregar a lista de UFs
+  Future<void> _loadUFs() async {
+    final response = await http.get(
+      Uri.parse('https://servicodados.ibge.gov.br/api/v1/localidades/estados'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _ufs = data.map((uf) => uf['sigla']).cast<String>().toList();
+      });
+    } else {
+      throw Exception('Falha ao buscar UFs');
+    }
+  }
+
+  // Carregar a lista de cidades de uma UF específica
+  Future<void> _loadCities(String uf) async {
+    final response = await http.get(
+      Uri.parse(
+          'https://servicodados.ibge.gov.br/api/v1/localidades/estados/$uf/municipios'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _cities = data.map((city) => city['nome']).cast<String>().toList();
+      });
+    } else {
+      throw Exception('Falha ao buscar cidades');
+    }
+  }
+
+  Future<void> LoadUrlImage() async {
+    String? _imageUrl = await DatabaseMethods().checkIfImageExists();
+    imageUrl = _imageUrl;
+  }
+
+  Future<void> _loadUserData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('Usuário não autenticado.');
+      return;
+    }
+
+    try {
+      final snapshot = await _collectionReference.doc(user.uid).get();
+      if (snapshot.exists) {
+        final data = snapshot.data() as Map<String, dynamic>;
+
+        setState(() {
+          nameController.text = data['nome'];
+          generoController.text = data['genero'];
+          _selectedUF = data['uf'];
+          _selectedCity = data['cidade'];
+          if (_selectedUF != null) {
+            _loadCities(
+                _selectedUF!); // Carregue as cidades apenas se _selectedUF não for nulo
+          }
+        });
+      }
+    } catch (error) {
+      print('Erro ao carregar dados do usuário: $error');
     }
   }
 }

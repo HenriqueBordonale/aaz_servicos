@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class Perfil {
   final FirebaseAuth auth = FirebaseAuth.instance;
   String idofer = FirebaseAuth.instance.currentUser!.uid;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String?> createPerfil(String idServico, String descricao) async {
     try {
@@ -100,6 +102,27 @@ class Perfil {
       }
     } catch (e) {
       print('Erro ao buscar os serviços: $e');
+    }
+  }
+
+  Future<void> deleteImageFromStorage(String imageUrl, String idServico) async {
+    try {
+      // Exclua a imagem do Firebase Storage
+      final Reference imageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+      await imageRef.delete();
+
+      // Atualize o documento no Cloud Firestore para remover a referência da imagem
+      final servicoRef = _firestore.collection('servicos').doc(idServico);
+      final servicoDoc = await servicoRef.get();
+      if (servicoDoc.exists) {
+        final List<String> photos =
+            List<String>.from(servicoDoc['photos'] ?? []);
+        photos.remove(imageUrl); // Remova a URL da imagem da lista de fotos
+        await servicoRef
+            .update({'photos': photos}); // Atualize a lista no Firestore
+      }
+    } catch (e) {
+      print('Erro ao excluir imagem: $e');
     }
   }
 }

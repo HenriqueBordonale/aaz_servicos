@@ -208,7 +208,7 @@ class login extends StatelessWidget {
       Navigator.pushReplacementNamed(context, 'menu principal');
     } on FirebaseException catch (e) {
       var msg = '';
-      if (e.code == 'user-not-found') {
+      if (e.code == 'Usuário não existente!') {
         msg = 'ERRO: Usuario não encontrado';
       } else if (e.code == 'wrong-password') {
         msg = 'ERRO: Senha incorreta';

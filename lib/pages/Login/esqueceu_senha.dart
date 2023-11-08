@@ -8,22 +8,20 @@ class esqueceu_senha extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(221, 249, 74, 16),
+        title: const Text(
+          'Troca de senha',
+          style: TextStyle(fontSize: 25, fontFamily: 'inter'),
+        ),
+      ),
       body: Container(
         padding: EdgeInsets.only(top: 10, left: 25, right: 25),
         color: Colors.white,
         child: ListView(
           children: <Widget>[
-            IconButton(
-              iconSize: 35,
-              alignment: Alignment.bottomLeft,
-              icon: Icon(Icons.arrow_back),
-              onPressed: () {
-                // Quando o ícone for pressionado, navegue de volta para a tela anterior
-                Navigator.of(context).pop();
-              },
-            ),
-            const SizedBox(
-              height: 20,
+            SizedBox(
+              height: 10,
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,

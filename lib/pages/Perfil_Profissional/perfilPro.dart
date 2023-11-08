@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/models/perfilProfi.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -23,17 +24,17 @@ class _perfilprofissional extends State<perfilprofissional> {
   String? imageUrlMidia;
   bool perfilCriado = false;
   List<String> photoUrlsMidia = [];
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   @override
   void initState() {
     super.initState();
+    LoadUrlImage();
     checkIfProfileExists();
     Perfil().consultarDocUser(onDataReceivedToUser);
     Perfil().consultarDocServico(onDataReceivedToServico);
-    loadProfileImage();
+
     loadUserPhotos();
     loadInfoPerfil();
   }
@@ -86,6 +87,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                       )
                     : const Icon(
                         Icons.account_circle,
+                        size: 150,
                       ),
                 const SizedBox(width: 25),
                 Expanded(
@@ -395,25 +397,9 @@ class _perfilprofissional extends State<perfilprofissional> {
     });
   }
 
-//Image Profile
-  Future<void> loadProfileImage() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      print('Usuário não autenticado.');
-      return;
-    }
-
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('user_images/profile_images/${user.uid}');
-    try {
-      final downloadUrl = await storageRef.getDownloadURL();
-      setState(() {
-        imageUrlPerfil = downloadUrl;
-      });
-    } catch (e) {
-      print('Nenhuma imagem encontrada no Firebase Storage.');
-    }
+  Future<void> LoadUrlImage() async {
+    String? _imageUrl = await DatabaseMethods().checkIfImageExists();
+    imageUrlPerfil = _imageUrl;
   }
 
   // Método para mostrar o modal de edição da descrição
@@ -496,7 +482,8 @@ class _perfilprofissional extends State<perfilprofissional> {
 
                 // Mostre um AlertDialog com um indicador de carregamento
 
-                deleteImageFromStorage(imageUrls[index], widget.idServico);
+                Perfil()
+                    .deleteImageFromStorage(imageUrls[index], widget.idServico);
 
                 // Remova a imagem da lista
                 imageUrls.removeAt(index);
@@ -574,26 +561,5 @@ class _perfilprofissional extends State<perfilprofissional> {
         );
       },
     );
-  }
-
-  Future<void> deleteImageFromStorage(String imageUrl, String idServico) async {
-    try {
-      // Exclua a imagem do Firebase Storage
-      final Reference imageRef = FirebaseStorage.instance.refFromURL(imageUrl);
-      await imageRef.delete();
-
-      // Atualize o documento no Cloud Firestore para remover a referência da imagem
-      final servicoRef = _firestore.collection('servicos').doc(idServico);
-      final servicoDoc = await servicoRef.get();
-      if (servicoDoc.exists) {
-        final List<String> photos =
-            List<String>.from(servicoDoc['photos'] ?? []);
-        photos.remove(imageUrl); // Remova a URL da imagem da lista de fotos
-        await servicoRef
-            .update({'photos': photos}); // Atualize a lista no Firestore
-      }
-    } catch (e) {
-      print('Erro ao excluir imagem: $e');
-    }
   }
 }

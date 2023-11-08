@@ -1,3 +1,4 @@
+import 'package:aaz_servicos/pages/Servicos/servicoCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -51,27 +52,76 @@ class Servicos {
     }
   }
 
-  Future<void> addPerfilToServico(String idServico, String idPerfil) async {
+  Future<void> deleteServico(String idServico) async {
     try {
-      // Primeiro, obtenha o documento do serviço pelo idServico
-      final servicoDoc = await FirebaseFirestore.instance
-          .collection('servicos')
-          .doc(idServico)
+      // Primeiro, você pode buscar o documento na coleção 'perfil' com base no campo 'idServico'
+      QuerySnapshot perfilQuery = await FirebaseFirestore.instance
+          .collection('perfis')
+          .where('idServico', isEqualTo: idServico)
           .get();
 
-      if (servicoDoc.exists) {
-        // O documento do serviço existe, agora você pode atualizá-lo
-        await FirebaseFirestore.instance
-            .collection('servicos')
-            .doc(idServico)
-            .update({'idPerfil': idPerfil});
-        print('Perfil vinculado ao serviço com sucesso.');
-      } else {
-        print(
-            'Serviço não encontrado. Certifique-se de que o idServico seja válido.');
+      if (perfilQuery.docs.isNotEmpty) {
+        // Se houver documentos correspondentes na coleção 'perfil', exclua-os
+        for (QueryDocumentSnapshot doc in perfilQuery.docs) {
+          await FirebaseFirestore.instance
+              .collection('perfis')
+              .doc(doc.id)
+              .delete();
+        }
+      }
+
+      // Em seguida, você pode excluir o documento na coleção 'servicos'
+      await FirebaseFirestore.instance
+          .collection('servicos')
+          .doc(idServico)
+          .delete();
+    } catch (e) {
+      print('Erro ao excluir o serviço: $e');
+    }
+  }
+
+  Future<List<Servico>> getServicos(String userId) async {
+    List<Servico> servicosList = [];
+
+    try {
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('servicos')
+          .where('userId', isEqualTo: userId)
+          .get();
+
+      for (QueryDocumentSnapshot document in querySnapshot.docs) {
+        final idServico = document.id;
+        final nome = document['nome'];
+        final especificacao = document['especificacao'];
+        final idPerfil = document['idPerfil'];
+
+        servicosList.add(Servico(
+          idServico: idServico,
+          nome: nome,
+          especificacao: especificacao,
+          idPerfil: idPerfil,
+        ));
       }
     } catch (e) {
-      print('Erro ao vincular perfil ao serviço: $e');
+      print('Erro ao buscar os serviços: $e');
+      // Você pode lançar uma exceção personalizada aqui se preferir.
+    }
+
+    return servicosList;
+  }
+
+  Future<void> updateServico(
+      String idServico, String novoNome, String novaEspecificacao) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('servicos')
+          .doc(idServico)
+          .update({
+        'nome': novoNome,
+        'especificacao': novaEspecificacao,
+      });
+    } catch (e) {
+      print('Erro ao atualizar o serviço: $e');
     }
   }
 }

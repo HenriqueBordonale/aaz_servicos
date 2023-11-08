@@ -1,6 +1,5 @@
 import 'package:aaz_servicos/pages/Perfil_Profissional/perfilPro.dart';
 import 'package:aaz_servicos/pages/Servicos/servicoCard.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aaz_servicos/models/servicos.dart';
@@ -13,8 +12,8 @@ class servicos extends StatefulWidget {
   State<servicos> createState() => _servicos();
 }
 
-Servicos minhaInstancia = Servicos();
-List<String> serv = minhaInstancia.get_Servicos;
+Servicos instanciaServicos = Servicos();
+List<String> serv = instanciaServicos.get_Servicos;
 
 class _servicos extends State<servicos> {
   List<Servico> servicos = [];
@@ -24,14 +23,7 @@ class _servicos extends State<servicos> {
   @override
   void initState() {
     super.initState();
-    _loadServicos();
-  }
-
-  Future<void> _loadServicos() async {
-    List<Servico> servicosList = await getServicos(userId);
-    setState(() {
-      servicos = servicosList;
-    });
+    carregarServicos();
   }
 
   @override
@@ -77,11 +69,12 @@ class _servicos extends State<servicos> {
                 return ServicoCard(
                   nome: servicos[index].nome,
                   especificacao: servicos[index].especificacao,
-                  onDelete: () {
-                    deleteServico(servicos[index].idServico);
+                  onDelete: () async {
+                    Servicos().deleteServico(servicos[index].idServico);
+                    await carregarServicos();
                   },
                   onEdit: () {
-                    _showEditServicoBottomSheet(context, servicos[index]);
+                    showBottomEditarServico(context, servicos[index]);
                   },
                   onCadastrarPerfil: () async {
                     final result = await Navigator.of(context).push(
@@ -93,7 +86,7 @@ class _servicos extends State<servicos> {
                     );
 
                     if (result == true) {
-                      await _loadServicos(); // Recarrega a lista após o retorno
+                      await carregarServicos(); // Recarrega a lista após o retorno
                     }
                   },
                   idPerfil: servicos[index].idPerfil,
@@ -107,9 +100,9 @@ class _servicos extends State<servicos> {
               iconSize: 60,
               alignment: Alignment.bottomLeft,
               icon: Icon(Icons.add_circle),
-              color: Color.fromARGB(62, 6, 6, 6),
+              color: Color.fromARGB(129, 6, 6, 6),
               onPressed: () {
-                _showAddServicoBottomSheet(context);
+                showBottomAddServico(context);
               },
             ),
           ],
@@ -118,7 +111,7 @@ class _servicos extends State<servicos> {
     );
   }
 
-  void _showAddServicoBottomSheet(BuildContext context) {
+  void showBottomAddServico(BuildContext context) {
     var especController = TextEditingController();
 
     showModalBottomSheet(
@@ -223,7 +216,7 @@ class _servicos extends State<servicos> {
                     especController.clear();
 
                     // Atualize a lista de serviços após criar o novo serviço
-                    await _loadServicos();
+                    await carregarServicos();
 
                     // Feche o modal
                     Navigator.pop(context);
@@ -249,7 +242,7 @@ class _servicos extends State<servicos> {
     );
   }
 
-  void _showEditServicoBottomSheet(BuildContext context, Servico servico) {
+  void showBottomEditarServico(BuildContext context, Servico servico) {
     var nomeController = TextEditingController(text: servico.nome);
     var especController = TextEditingController(text: servico.especificacao);
 
@@ -349,11 +342,11 @@ class _servicos extends State<servicos> {
 
                   if (novoNome.isNotEmpty && novaEspecificacao.isNotEmpty) {
                     // Atualize os dados do serviço no Firestore
-                    await updateServico(
+                    await Servicos().updateServico(
                         servico.idServico, novoNome, novaEspecificacao);
 
                     // Atualize a lista de serviços após editar o serviço
-                    await _loadServicos();
+                    await carregarServicos();
 
                     // Feche o modal
                     Navigator.pop(context);
@@ -373,79 +366,10 @@ class _servicos extends State<servicos> {
     );
   }
 
-  Future<void> updateServico(
-      String idServico, String novoNome, String novaEspecificacao) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('servicos')
-          .doc(idServico)
-          .update({
-        'nome': novoNome,
-        'especificacao': novaEspecificacao,
-      });
-    } catch (e) {
-      print('Erro ao atualizar o serviço: $e');
-    }
-  }
-
-  Future<List<Servico>> getServicos(String userId) async {
-    List<Servico> servicosList = [];
-
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('servicos')
-          .where('userId', isEqualTo: userId)
-          .get();
-
-      for (QueryDocumentSnapshot document in querySnapshot.docs) {
-        final idServico = document.id;
-        final nome = document['nome'];
-        final especificacao = document['especificacao'];
-        final idPerfil = document['idPerfil'];
-
-        servicosList.add(Servico(
-          idServico: idServico,
-          nome: nome,
-          especificacao: especificacao,
-          idPerfil: idPerfil,
-        ));
-      }
-    } catch (e) {
-      print('Erro ao buscar os serviços: $e');
-      // Você pode lançar uma exceção personalizada aqui se preferir.
-    }
-
-    return servicosList;
-  }
-
-  Future<void> deleteServico(String idServico) async {
-    try {
-      // Primeiro, você pode buscar o documento na coleção 'perfil' com base no campo 'idServico'
-      QuerySnapshot perfilQuery = await FirebaseFirestore.instance
-          .collection('perfis')
-          .where('idServico', isEqualTo: idServico)
-          .get();
-
-      if (perfilQuery.docs.isNotEmpty) {
-        // Se houver documentos correspondentes na coleção 'perfil', exclua-os
-        for (QueryDocumentSnapshot doc in perfilQuery.docs) {
-          await FirebaseFirestore.instance
-              .collection('perfis')
-              .doc(doc.id)
-              .delete();
-        }
-      }
-
-      // Em seguida, você pode excluir o documento na coleção 'servicos'
-      await FirebaseFirestore.instance
-          .collection('servicos')
-          .doc(idServico)
-          .delete();
-
-      // Atualize a lista de serviços após excluir o serviço
-      await _loadServicos();
-    } catch (e) {
-      print('Erro ao excluir o serviço: $e');
-    }
+  Future<void> carregarServicos() async {
+    List<Servico> servicosList = await Servicos().getServicos(userId);
+    setState(() {
+      servicos = servicosList;
+    });
   }
 }
