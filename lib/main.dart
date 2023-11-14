@@ -1,3 +1,5 @@
+import 'package:aaz_servicos/pages/Buscador/mostrarPerfil.dart';
+import 'package:aaz_servicos/pages/Chat/conversa.dart';
 import 'package:aaz_servicos/pages/Configuracoes/config.dart';
 import 'package:aaz_servicos/pages/Login/cadastro_ofertante.dart';
 import 'package:aaz_servicos/pages/Login/esqueceu_senha.dart';
@@ -47,6 +49,7 @@ class MyApp extends StatelessWidget {
       home: const selecao_usuario(),
       routes: {
         'login': (context) => login(),
+        'chat': (context) => ChatScreen(),
         'cadastro': (context) => const Cadastro(),
         'menu principal': (context) => const menuPrincipal(),
         'esqueceu senha': (context) => esqueceu_senha(),
@@ -64,6 +67,14 @@ class MyApp extends StatelessWidget {
                   idServico); // Certifique-se de passar idServico como argumento nomeado
         },
         'buscador': (context) => ServicosScreen(),
+        'mostarPerfil': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments
+                  as Map<String, dynamic>? ??
+              {};
+          final idPerfil = arguments['idPerfil'] as String;
+
+          return MostrarPerfil(idPerfil: idPerfil);
+        },
       },
     );
   }

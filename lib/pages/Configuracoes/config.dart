@@ -3,13 +3,11 @@ import 'dart:convert';
 import 'package:aaz_servicos/models/database.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
-import 'package:aaz_servicos/models/auth.dart';
 
 import '../Login/esqueceu_senha.dart';
 
@@ -56,11 +54,23 @@ class _Config extends State<Config> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(221, 249, 74, 16),
         title: const Text(
           'Configurações',
           style: TextStyle(fontSize: 25, fontFamily: 'inter'),
         ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(221, 249, 74, 16),
+                Color.fromARGB(226, 236, 55, 45),
+              ], // Escolha as cores desejadas para o gradiente
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Column(

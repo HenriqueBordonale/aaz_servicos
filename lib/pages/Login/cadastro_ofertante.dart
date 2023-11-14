@@ -42,39 +42,6 @@ class _CadastroOfer extends State<CadastroOfer> {
     _loadUFs();
   }
 
-  // Carregar a lista de UFs
-  Future<void> _loadUFs() async {
-    final response = await http.get(
-      Uri.parse('https://servicodados.ibge.gov.br/api/v1/localidades/estados'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        _ufs = data.map((uf) => uf['sigla']).cast<String>().toList();
-      });
-    } else {
-      throw Exception('Falha ao buscar UFs');
-    }
-  }
-
-  // Carregar a lista de cidades de uma UF específica
-  Future<void> _loadCities(String uf) async {
-    final response = await http.get(
-      Uri.parse(
-          'https://servicodados.ibge.gov.br/api/v1/localidades/estados/$uf/municipios'),
-    );
-
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        _cities = data.map((city) => city['nome']).cast<String>().toList();
-      });
-    } else {
-      throw Exception('Falha ao buscar cidades');
-    }
-  }
-
   var cpfController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -401,6 +368,38 @@ class _CadastroOfer extends State<CadastroOfer> {
         ],
       ),
     );
+  }
+
+  Future<void> _loadUFs() async {
+    final response = await http.get(
+      Uri.parse('https://servicodados.ibge.gov.br/api/v1/localidades/estados'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _ufs = data.map((uf) => uf['sigla']).cast<String>().toList();
+      });
+    } else {
+      throw Exception('Falha ao buscar UFs');
+    }
+  }
+
+  // Carregar a lista de cidades de uma UF específica
+  Future<void> _loadCities(String uf) async {
+    final response = await http.get(
+      Uri.parse(
+          'https://servicodados.ibge.gov.br/api/v1/localidades/estados/$uf/municipios'),
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = json.decode(response.body);
+      setState(() {
+        _cities = data.map((city) => city['nome']).cast<String>().toList();
+      });
+    } else {
+      throw Exception('Falha ao buscar cidades');
+    }
   }
 
   void adicionarOfertante(String cpf, String cidade, String uf, context) async {

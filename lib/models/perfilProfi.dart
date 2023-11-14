@@ -7,14 +7,27 @@ class Perfil {
   String idofer = FirebaseAuth.instance.currentUser!.uid;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<String?> createPerfil(String idServico, String descricao) async {
+  Future<String?> createPerfil(String idServico, String descricao, String nome,
+      String categoria, String especificacao, String imageUrl) async {
     try {
-      // Crie o perfil no Firestore
+      final userDocRef =
+          FirebaseFirestore.instance.collection('user').doc(idofer);
+      DocumentSnapshot userSnapshot = await userDocRef.get();
+      Map<String, dynamic> userData =
+          userSnapshot.data() as Map<String, dynamic>;
       final perfilDocRef =
           await FirebaseFirestore.instance.collection('perfis').add({
         'idServico': idServico,
         'descricao': descricao,
-        // Outros campos do perfil, se houver
+        'nome': nome,
+        'categoria': categoria,
+        'especificacao': especificacao,
+        'avaliacao': '',
+        'quantidade': '',
+        'imageUrl': imageUrl,
+        'genero': userData['genero'],
+        'cidade': userData['cidade'],
+        'uf': userData['uf'],
       });
 
       final idPerfil = perfilDocRef.id; // Obtenha o ID do perfil criado
@@ -36,21 +49,38 @@ class Perfil {
     }
   }
 
-  Future<void> updatePerfil(String idPerfil, String descricao) async {
+  Future<void> updatePerfil(String idPerfil, String descricao, String nome,
+      String categoria, String especificacao, String imageUrl) async {
     try {
       final perfilDocRef =
           FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
 
-      // Atualize a descrição no documento do perfil
-      await perfilDocRef.update({
-        'descricao': descricao,
-        // Outros campos a serem atualizados, se houver
-      });
+      // Obtenha dados do documento 'user' correspondente
+      final userDocRef =
+          FirebaseFirestore.instance.collection('user').doc(idofer);
 
-      print(
-          'Descrição do perfil atualizada com sucesso. ID do perfil: $idPerfil');
+      DocumentSnapshot userSnapshot = await userDocRef.get();
+      if (userSnapshot.exists) {
+        Map<String, dynamic> userData =
+            userSnapshot.data() as Map<String, dynamic>;
+
+        await perfilDocRef.update({
+          'descricao': descricao,
+          'nome': nome,
+          'categoria': categoria,
+          'especificacao': especificacao,
+          'avaliacao': '',
+          'quantidade': '',
+          'imageUrl': imageUrl,
+          'genero': userData['genero'],
+          'cidade': userData['cidade'],
+          'uf': userData['uf'],
+        });
+      } else {
+        print('Documento user não encontrado para o ID: $idofer');
+      }
     } catch (e) {
-      print('Erro ao atualizar a descrição do perfil: $e');
+      print('Erro ao atualizar perfil: $e');
     }
   }
 

@@ -1,12 +1,9 @@
 import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/pages/Buscador/buscadorScreen.dart';
+import 'package:aaz_servicos/pages/Chat/conversa.dart';
 import 'package:aaz_servicos/pages/Configuracoes/config.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
-import 'dart:io';
 
 import '../Servicos/meuServico.dart';
 
@@ -43,9 +40,9 @@ class _menuPrincipal extends State<menuPrincipal> {
               index: _currentIndex,
               height: 50.0,
               items: icons,
-              color: Color.fromARGB(221, 249, 74, 16),
-              buttonBackgroundColor: Color.fromARGB(221, 249, 74, 16),
-              backgroundColor: Colors.transparent,
+              color: Color.fromARGB(193, 245, 34, 2),
+              buttonBackgroundColor: Color.fromARGB(193, 245, 34, 2),
+              backgroundColor: const Color.fromARGB(0, 131, 124, 124),
               animationCurve: Curves.easeInOut,
               animationDuration: Duration(milliseconds: 300),
               onTap: (index) {
@@ -68,13 +65,13 @@ class _menuPrincipal extends State<menuPrincipal> {
 List<Widget> getScreens(String? tipoUsuario) {
   if (tipoUsuario == 'ofertante') {
     return [
-      Screen4(),
+      ChatScreen(),
       servicos(),
       const Config(),
     ];
   } else {
     return [
-      Screen3(),
+      ChatScreen(),
       ServicosScreen(), // Use outra tela para contratantes (por exemplo, Screen2() ou algo adequado)
       const Config(),
     ];
@@ -118,32 +115,5 @@ List<Icon> getIconList(String? tipoUsuario) {
         color: Colors.white,
       ),
     ];
-  }
-}
-
-class Screen2 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Tela 2'),
-    );
-  }
-}
-
-class Screen3 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Tela 3'),
-    );
-  }
-}
-
-class Screen4 extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text('Tela 4'),
-    );
   }
 }

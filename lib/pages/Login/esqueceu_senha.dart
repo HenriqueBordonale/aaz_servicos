@@ -9,11 +9,23 @@ class esqueceu_senha extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(221, 249, 74, 16),
         title: const Text(
           'Troca de senha',
           style: TextStyle(fontSize: 25, fontFamily: 'inter'),
         ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(221, 249, 74, 16),
+                Color.fromARGB(226, 236, 55, 45),
+              ], // Escolha as cores desejadas para o gradiente
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        automaticallyImplyLeading: false,
       ),
       body: Container(
         padding: EdgeInsets.only(top: 10, left: 25, right: 25),

@@ -1,5 +1,6 @@
 import 'package:aaz_servicos/pages/Perfil_Profissional/perfilPro.dart';
 import 'package:aaz_servicos/pages/Servicos/servicoCard.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:aaz_servicos/models/servicos.dart';
@@ -30,11 +31,23 @@ class _servicos extends State<servicos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(221, 249, 74, 16),
         title: const Text(
           'Serviços',
           style: TextStyle(fontSize: 25, fontFamily: 'inter'),
         ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(221, 249, 74, 16),
+                Color.fromARGB(226, 236, 55, 45),
+              ], // Escolha as cores desejadas para o gradiente
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(
@@ -70,8 +83,7 @@ class _servicos extends State<servicos> {
                   nome: servicos[index].nome,
                   especificacao: servicos[index].especificacao,
                   onDelete: () async {
-                    Servicos().deleteServico(servicos[index].idServico);
-                    await carregarServicos();
+                    deleteServico(servicos[index].idServico);
                   },
                   onEdit: () {
                     showBottomEditarServico(context, servicos[index]);
@@ -98,9 +110,8 @@ class _servicos extends State<servicos> {
             ),
             IconButton(
               iconSize: 60,
-              alignment: Alignment.bottomLeft,
               icon: Icon(Icons.add_circle),
-              color: Color.fromARGB(129, 6, 6, 6),
+              color: Color.fromARGB(138, 6, 6, 6),
               onPressed: () {
                 showBottomAddServico(context);
               },
@@ -364,6 +375,35 @@ class _servicos extends State<servicos> {
         ),
       ),
     );
+  }
+
+  Future<void> deleteServico(String idServico) async {
+    try {
+      // Primeiro, você pode buscar o documento na coleção 'perfil' com base no campo 'idServico'
+      QuerySnapshot perfilQuery = await FirebaseFirestore.instance
+          .collection('perfis')
+          .where('idServico', isEqualTo: idServico)
+          .get();
+
+      if (perfilQuery.docs.isNotEmpty) {
+        // Se houver documentos correspondentes na coleção 'perfil', exclua-os
+        for (QueryDocumentSnapshot doc in perfilQuery.docs) {
+          await FirebaseFirestore.instance
+              .collection('perfis')
+              .doc(doc.id)
+              .delete();
+        }
+      }
+
+      // Em seguida, você pode excluir o documento na coleção 'servicos'
+      await FirebaseFirestore.instance
+          .collection('servicos')
+          .doc(idServico)
+          .delete();
+      await carregarServicos();
+    } catch (e) {
+      print('Erro ao excluir o serviço: $e');
+    }
   }
 
   Future<void> carregarServicos() async {

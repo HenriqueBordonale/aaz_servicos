@@ -4,7 +4,6 @@ import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/models/perfilProfi.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,6 +19,7 @@ class perfilprofissional extends StatefulWidget {
 class _perfilprofissional extends State<perfilprofissional> {
   String? imageUrlPerfil;
   String? descricao;
+  bool _isLoading = false;
   String? idPerfil;
   String? imageUrlMidia;
   bool perfilCriado = false;
@@ -30,13 +30,12 @@ class _perfilprofissional extends State<perfilprofissional> {
   @override
   void initState() {
     super.initState();
-    LoadUrlImage();
     checkIfProfileExists();
     Perfil().consultarDocUser(onDataReceivedToUser);
     Perfil().consultarDocServico(onDataReceivedToServico);
-
     loadUserPhotos();
     loadInfoPerfil();
+    LoadUrlImage();
   }
 
   String nome = '';
@@ -49,7 +48,6 @@ class _perfilprofissional extends State<perfilprofissional> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(221, 249, 74, 16),
         title: const Text(
           'Cadastrar Perfil',
           style: TextStyle(fontSize: 25, fontFamily: 'inter'),
@@ -61,6 +59,18 @@ class _perfilprofissional extends State<perfilprofissional> {
             Navigator.of(context)
                 .pop(true); // Exemplo: voltar para a tela anterior
           },
+        ),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color.fromARGB(221, 249, 74, 16),
+                Color.fromARGB(226, 236, 55, 45),
+              ], // Escolha as cores desejadas para o gradiente
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
         ),
       ),
       body: SingleChildScrollView(
@@ -75,20 +85,21 @@ class _perfilprofissional extends State<perfilprofissional> {
             ),
             Row(
               children: [
-                imageUrlPerfil != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(75),
-                        child: Image.network(
-                          imageUrlPerfil!,
-                          fit: BoxFit.cover,
-                          width: 150,
-                          height: 150,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.account_circle,
-                        size: 150,
-                      ),
+                if (imageUrlPerfil != null)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(75),
+                    child: Image.network(
+                      imageUrlPerfil!,
+                      fit: BoxFit.cover,
+                      width: 150,
+                      height: 150,
+                    ),
+                  )
+                else
+                  const Icon(
+                    Icons.account_circle,
+                    size: 150,
+                  ),
                 const SizedBox(width: 25),
                 Expanded(
                   child: Column(
@@ -128,11 +139,16 @@ class _perfilprofissional extends State<perfilprofissional> {
             Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: Color.fromARGB(150, 238, 237, 237),
-                border: Border.all(
-                  color: Color.fromARGB(255, 211, 209, 209),
-                ),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white, // Cor de fundo
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
               child: Padding(
                 padding: const EdgeInsets.only(
@@ -179,7 +195,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                         right: 20,
                       ),
                       child: Text(
-                        descricao ?? '"Escreva sobre você ou seu serviço"',
+                        descricao ?? '',
                         style: TextStyle(fontSize: 15),
                       ),
                     ),
@@ -194,11 +210,16 @@ class _perfilprofissional extends State<perfilprofissional> {
             Container(
               padding: const EdgeInsets.all(15),
               decoration: BoxDecoration(
-                color: Color.fromARGB(150, 238, 237, 237),
-                border: Border.all(
-                  color: Color.fromARGB(255, 211, 209, 209),
-                ),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white, // Cor de fundo
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: Offset(0, 3),
+                  ),
+                ],
               ),
               child: Padding(
                 padding: const EdgeInsets.only(
@@ -218,7 +239,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                         ),
                         InkWell(
                           onTap: () {
-                            uploadImage(widget.idServico);
+                            uploadImage();
                           },
                           child: Row(
                             children: [
@@ -239,30 +260,33 @@ class _perfilprofissional extends State<perfilprofissional> {
                       height: 10,
                     ),
                     Container(
-                      height: 120, // Altura fixa das imagens
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: photoUrlsMidia.length > 3
-                            ? 3
-                            : photoUrlsMidia.length,
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: GestureDetector(
-                              onTap: () {
-                                openImageGallery(context, photoUrlsMidia);
+                      height: 120,
+                      child: _isLoading
+                          ? Center(
+                              child: CircularProgressIndicator(),
+                            )
+                          : ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: photoUrlsMidia.length > 3
+                                  ? 3
+                                  : photoUrlsMidia.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(right: 10),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      openImageGallery(context, photoUrlsMidia);
+                                    },
+                                    child: Image.network(
+                                      photoUrlsMidia[index],
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                );
                               },
-                              child: Image.network(
-                                photoUrlsMidia[index],
-                                width: 120, // Largura fixa das imagens
-                                height: 120, // Altura fixa das imagens
-                                fit: BoxFit
-                                    .cover, // Pode ajustar a escala da imagem conforme necessário
-                              ),
                             ),
-                          );
-                        },
-                      ),
                     ),
                     const SizedBox(
                       height: 10,
@@ -273,14 +297,19 @@ class _perfilprofissional extends State<perfilprofissional> {
             ),
 
             const SizedBox(height: 20), // Espaçamento entre blocos
-            ElevatedButton(
+            TextButton(
               onPressed: () {
                 if (perfilCriado == true) {
                   // Lógica para editar o perfil
                   print('Editar Perfil');
                   // Chame a função de edição do perfil aqui
-                  Perfil()
-                      .updatePerfil(idPerfil.toString(), descricao.toString());
+                  Perfil().updatePerfil(
+                      idPerfil.toString(),
+                      descricao.toString(),
+                      nome.toString(),
+                      servico.toString(),
+                      especificacao.toString(),
+                      imageUrlPerfil.toString());
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('Perfil atualizado com sucesso!'),
                   ));
@@ -289,7 +318,12 @@ class _perfilprofissional extends State<perfilprofissional> {
                   print('Criar Perfil');
                   // Chame a função de criação do perfil aqui
                   Perfil().createPerfil(
-                      widget.idServico.toString(), descricao.toString());
+                      widget.idServico.toString(),
+                      descricao.toString(),
+                      nome.toString(),
+                      servico.toString(),
+                      especificacao.toString(),
+                      imageUrlPerfil.toString());
                   setState(() {
                     perfilCriado = true;
                   });
@@ -298,15 +332,31 @@ class _perfilprofissional extends State<perfilprofissional> {
                   ));
                 }
               },
-              style: ElevatedButton.styleFrom(
-                primary: perfilCriado
-                    ? const Color.fromARGB(212, 76, 175, 79)
-                    : const Color.fromARGB(208, 255, 153, 0),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+              child: Ink(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromARGB(221, 249, 74, 16),
+                      Color.fromARGB(226, 236, 55, 45),
+                    ],
+                  ),
+                ),
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                      vertical:
+                          16), // Ajuste o preenchimento conforme necessário
+                  child: Center(
+                    child: Text(
+                      perfilCriado ? "Salvar Perfil" : "Criar Perfil",
+                      style: TextStyle(
+                        color: Colors.white, // Cor do texto
+                        fontSize: 16, // Tamanho da fonte
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              child: Text(perfilCriado ? "Salvar Perfil" : "Criar Perfil"),
             ),
           ],
         ),
@@ -330,9 +380,9 @@ class _perfilprofissional extends State<perfilprofissional> {
   }
 
   Future<void> loadUserPhotos() async {
-    if (widget.idServico != null) {
+    if (idPerfil != null) {
       final perfilPhotos =
-          await _firestore.collection('servicos').doc(widget.idServico).get();
+          await _firestore.collection('perfis').doc(idPerfil).get();
       if (perfilPhotos.exists) {
         final photos = perfilPhotos.data()?['photos'] as List<dynamic>?;
         if (photos != null) {
@@ -358,26 +408,34 @@ class _perfilprofissional extends State<perfilprofissional> {
     }
   }
 
-  Future<void> uploadImage(String idServico) async {
+  Future<void> uploadImage() async {
+    setState(() {
+      _isLoading = true; // Mostrar tela de carregamento
+    });
+
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
       final file = File(pickedFile.path);
 
-      if (idServico != null) {
+      if (idPerfil != null) {
         final photoRef = FirebaseStorage.instance
             .ref()
-            .child('midias_perfil/$idServico/${DateTime.now()}.jpg');
+            .child('midias_perfil/$idPerfil/${DateTime.now()}.jpg');
         await photoRef.putFile(file);
         final downloadUrl = await photoRef.getDownloadURL();
 
         // Atualize a lista de fotos no Firestore
-        final servicoRef = _firestore.collection('servicos').doc(idServico);
+        final servicoRef = _firestore.collection('perfis').doc(idPerfil);
         await servicoRef.update({
           'photos': FieldValue.arrayUnion([downloadUrl]),
         });
         loadUserPhotos();
+
+        setState(() {
+          _isLoading = false; // Esconder tela de carregamento
+        });
       }
     }
   }
@@ -399,11 +457,14 @@ class _perfilprofissional extends State<perfilprofissional> {
 
   Future<void> LoadUrlImage() async {
     String? _imageUrl = await DatabaseMethods().checkIfImageExists();
-    imageUrlPerfil = _imageUrl;
+    setState(() {
+      imageUrlPerfil = _imageUrl; // Atualize a variável com o valor exato
+    });
   }
 
   // Método para mostrar o modal de edição da descrição
   void _showEditDescriptionModal(BuildContext context) {
+    TextEditingController _descricao = TextEditingController(text: descricao);
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -426,7 +487,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                 ),
                 maxLength: 300, // Limite de 280 caracteres
                 maxLines: 5, // Permite várias linhas
-                controller: TextEditingController(),
+                controller: _descricao,
                 onChanged: (value) {
                   setState(() {
                     descricao = value;
@@ -510,7 +571,7 @@ class _perfilprofissional extends State<perfilprofissional> {
         return SingleChildScrollView(
           child: Container(
             height: MediaQuery.of(context).size.height * 0.6,
-            color: Color.fromARGB(159, 233, 232, 232),
+            color: Color.fromARGB(84, 54, 53, 53),
             child: PageView.builder(
               itemCount: imageUrls.length,
               itemBuilder: (context, index) {
@@ -532,10 +593,6 @@ class _perfilprofissional extends State<perfilprofissional> {
                       Container(
                         constraints: BoxConstraints(
                           maxWidth: 350,
-                        ),
-                        child: Divider(
-                          thickness: 1,
-                          color: Colors.grey,
                         ),
                       ),
                       Padding(

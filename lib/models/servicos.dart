@@ -1,6 +1,7 @@
 import 'package:aaz_servicos/pages/Servicos/servicoCard.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:aaz_servicos/pages/Servicos/meuServico.dart';
 
 class Servicos {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -49,34 +50,6 @@ class Servicos {
       print('Serviço criado com sucesso. ID do documento: $idDoDocumento');
     } catch (e) {
       print('Erro ao criar serviço: $e');
-    }
-  }
-
-  Future<void> deleteServico(String idServico) async {
-    try {
-      // Primeiro, você pode buscar o documento na coleção 'perfil' com base no campo 'idServico'
-      QuerySnapshot perfilQuery = await FirebaseFirestore.instance
-          .collection('perfis')
-          .where('idServico', isEqualTo: idServico)
-          .get();
-
-      if (perfilQuery.docs.isNotEmpty) {
-        // Se houver documentos correspondentes na coleção 'perfil', exclua-os
-        for (QueryDocumentSnapshot doc in perfilQuery.docs) {
-          await FirebaseFirestore.instance
-              .collection('perfis')
-              .doc(doc.id)
-              .delete();
-        }
-      }
-
-      // Em seguida, você pode excluir o documento na coleção 'servicos'
-      await FirebaseFirestore.instance
-          .collection('servicos')
-          .doc(idServico)
-          .delete();
-    } catch (e) {
-      print('Erro ao excluir o serviço: $e');
     }
   }
 
