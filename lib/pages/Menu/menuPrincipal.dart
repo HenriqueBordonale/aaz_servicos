@@ -1,6 +1,6 @@
 import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/pages/Buscador/buscadorScreen.dart';
-import 'package:aaz_servicos/pages/Chat/conversa.dart';
+import 'package:aaz_servicos/pages/Chat/conversas.dart';
 import 'package:aaz_servicos/pages/Configuracoes/config.dart';
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';

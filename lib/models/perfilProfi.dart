@@ -17,6 +17,7 @@ class Perfil {
           userSnapshot.data() as Map<String, dynamic>;
       final perfilDocRef =
           await FirebaseFirestore.instance.collection('perfis').add({
+        'idOfertante': idofer,
         'idServico': idServico,
         'descricao': descricao,
         'nome': nome,

@@ -1,5 +1,5 @@
 import 'package:aaz_servicos/pages/Buscador/mostrarPerfil.dart';
-import 'package:aaz_servicos/pages/Chat/conversa.dart';
+import 'package:aaz_servicos/pages/Chat/conversas.dart';
 import 'package:aaz_servicos/pages/Configuracoes/config.dart';
 import 'package:aaz_servicos/pages/Login/cadastro_ofertante.dart';
 import 'package:aaz_servicos/pages/Login/esqueceu_senha.dart';

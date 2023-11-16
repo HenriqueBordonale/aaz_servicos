@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:aaz_servicos/models/chatModel.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +15,8 @@ class MostrarPerfil extends StatefulWidget {
 }
 
 class _mostrarPerfil extends State<MostrarPerfil> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  String idCont = FirebaseAuth.instance.currentUser!.uid;
   String? imageUrlMidia;
   List<String> photoUrlsMidia = [];
 
@@ -259,7 +263,9 @@ class _mostrarPerfil extends State<MostrarPerfil> {
 
             const SizedBox(height: 20), // Espaçamento entre blocos
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                ChatModel().createChat(widget.idPerfil, idCont);
+              },
               child: Ink(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(30)),
