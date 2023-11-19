@@ -65,32 +65,84 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       body: chats.isNotEmpty
           ? ListView.builder(
+              padding: EdgeInsets.only(top: 20, left: 10, right: 10),
               itemCount: chats.length,
               itemBuilder: (context, index) {
-                return FutureBuilder<String?>(
-                  future: _initializeData(index),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return ListTile(
-                        title: Text('Carregando...'),
-                      );
-                    } else if (snapshot.hasError) {
-                      return ListTile(
-                        title: Text('Erro: ${snapshot.error}'),
-                      );
-                    } else {
-                      return ListTile(
-                        title: Text('${snapshot.data}'),
-                        onTap: () {
-                          _openChatScreen(chats[index]);
-                        },
-                      );
-                    }
-                  },
+                return Card(
+                  elevation: 5,
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 15,
+                  ),
+                  child: FutureBuilder<String?>(
+                    future: _initializeData(index),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return ListTile(
+                          leading: CircularProgressIndicator(),
+                          title: Text('Carregando...'),
+                        );
+                      } else if (snapshot.hasError) {
+                        return ListTile(
+                          leading: const Icon(
+                            Icons.error,
+                            size: 30,
+                          ),
+                          title: Text('Erro: ${snapshot.error}'),
+                        );
+                      } else {
+                        return ListTile(
+                          leading: FutureBuilder<String?>(
+                            future: getImageProfile(index),
+                            builder: (context, imageSnapshot) {
+                              if (imageSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return CircularProgressIndicator();
+                              } else if (imageSnapshot.hasError) {
+                                return const Icon(
+                                  Icons.error,
+                                  size: 40,
+                                );
+                              } else {
+                                final String? imageUrlPerfil =
+                                    imageSnapshot.data;
+                                return imageUrlPerfil != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(75),
+                                        child: Image.network(
+                                          imageUrlPerfil,
+                                          fit: BoxFit.cover,
+                                          width: 40,
+                                          height: 40,
+                                        ),
+                                      )
+                                    : const Icon(
+                                        Icons.account_circle,
+                                        size: 40,
+                                      );
+                              }
+                            },
+                          ),
+                          title: Text('${snapshot.data}'),
+                          onTap: () {
+                            _openChatScreen(chats[index]);
+                          },
+                        );
+                      }
+                    },
+                  ),
                 );
               },
             )
-          : CircularProgressIndicator(),
+          : const Center(
+              child: Text(
+                'Nenhuma Conversa iniciada',
+                style: TextStyle(
+                    fontFamily: 'inter',
+                    fontSize: 25,
+                    fontWeight: FontWeight.w300),
+              ),
+            ),
     );
   }
 
@@ -153,6 +205,31 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       print('Erro durante a inicialização de dados: $e');
+      return null;
+    }
+  }
+
+  Future<String?> getImageProfile(int index) async {
+    try {
+      String? tipoUsuario = await ChatModel().getUserType();
+      String idChat = chats[index].chatId;
+      String? imageUrlPerfil;
+
+      final chatDocRef =
+          FirebaseFirestore.instance.collection('chat').doc(idChat);
+      DocumentSnapshot chatSnapshot = await chatDocRef.get();
+      Map<String, dynamic> chatData =
+          chatSnapshot.data() as Map<String, dynamic>;
+
+      if (tipoUsuario == 'Ofertante') {
+        imageUrlPerfil = chatData['ContratanteImage'];
+      } else {
+        imageUrlPerfil = chatData['OfertanteImage'];
+      }
+
+      return imageUrlPerfil;
+    } catch (e) {
+      print('Erro ao obter imagem de perfil: $e');
       return null;
     }
   }

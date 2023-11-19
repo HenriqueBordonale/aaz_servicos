@@ -4,10 +4,6 @@ import 'database.dart';
 class Authent {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
-  Future<User> getcurrentUser() async {
-    return await auth.currentUser!;
-  }
-
   Future<void> createUserwithEmailAndPassword(
       String nome,
       String email,

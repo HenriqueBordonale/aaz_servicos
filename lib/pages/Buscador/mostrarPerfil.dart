@@ -15,8 +15,6 @@ class MostrarPerfil extends StatefulWidget {
 }
 
 class _mostrarPerfil extends State<MostrarPerfil> {
-  final FirebaseAuth auth = FirebaseAuth.instance;
-  String idCont = FirebaseAuth.instance.currentUser!.uid;
   String? imageUrlMidia;
   List<String> photoUrlsMidia = [];
 
@@ -264,7 +262,8 @@ class _mostrarPerfil extends State<MostrarPerfil> {
             const SizedBox(height: 20), // Espaçamento entre blocos
             TextButton(
               onPressed: () {
-                ChatModel().createChat(widget.idPerfil, idCont);
+                ChatModel().createChat(widget.idPerfil);
+                // ChatModel().createMensagens();
               },
               child: Ink(
                 decoration: BoxDecoration(

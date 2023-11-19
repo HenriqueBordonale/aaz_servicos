@@ -6,6 +6,7 @@ import 'package:aaz_servicos/pages/Login/esqueceu_senha.dart';
 import 'package:aaz_servicos/pages/Perfil_Profissional/perfilPro.dart';
 import 'package:aaz_servicos/pages/Servicos/meuServico.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:aaz_servicos/pages/Login/selecao_usuario.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
       scaffoldMessengerKey:
           scaffoldMessengerKey, // Defina a chave do ScaffoldMessenger aqui
       theme: ThemeData(
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: const Color.fromARGB(255, 168, 168, 168),
+        ),
         primaryColor: Colors.deepOrange,
         snackBarTheme: SnackBarThemeData(
           behavior: SnackBarBehavior.floating,

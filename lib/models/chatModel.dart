@@ -1,29 +1,38 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class ChatModel {
   final FirebaseAuth auth = FirebaseAuth.instance;
   String idContr = FirebaseAuth.instance.currentUser!.uid;
 
-  Future<void> createChat(String idPerfil, String idContratante) async {
+  Future<void> createChat(String idPerfil) async {
+    //Referencias a coleção e documento
+    final PerfilDocRef =
+        FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
+    final contrDocRef =
+        FirebaseFirestore.instance.collection('user').doc(idContr);
+    //SnapShot e mapeamento para obet o idOfertante
+    DocumentSnapshot PerfilSnapshot = await PerfilDocRef.get();
+    Map<String, dynamic> perfilData =
+        PerfilSnapshot.data() as Map<String, dynamic>;
+    //Mapeamento para obter o id da Imagem de perfil de cada tipo de usuário
+    final storageContRef = FirebaseStorage.instance
+        .ref()
+        .child('user_images/profile_images/${idContr}');
+    final urlStorageCont = await storageContRef.getDownloadURL();
+    final storageOfertRef = FirebaseStorage.instance
+        .ref()
+        .child('user_images/profile_images/${perfilData['idOfertante']}');
+    final urlStorageOfer = await storageOfertRef.getDownloadURL();
     try {
-      //Referencias a coleção e documento
-      final PerfilDocRef =
-          FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
-      final contrDocRef =
-          FirebaseFirestore.instance.collection('user').doc(idContr);
-
-      // Snapshot do perfil para obter o idOfertante
-      DocumentSnapshot PerfilSnapshot = await PerfilDocRef.get();
-
-      Map<String, dynamic> perfilData =
-          PerfilSnapshot.data() as Map<String, dynamic>;
-
       //Criação da coleção chat com os ids involvidos
       DocumentReference chatDocRef =
           await FirebaseFirestore.instance.collection('chat').add({
         'idOfertante': perfilData['idOfertante'],
-        'idContratante': idContratante,
+        'idContratante': idContr,
+        'OfertanteImage': urlStorageOfer,
+        'ContratanteImage': urlStorageCont,
       });
       //Referencia da coleção user com id Ofertante
       final ofertanteDocRef = FirebaseFirestore.instance
@@ -102,4 +111,23 @@ class ChatModel {
       return null;
     }
   }
+
+  /*Future<void> createMensagens() async {
+    try {
+      // Referência para a coleção 'mensagens'
+      CollectionReference mensagensCollection =
+          FirebaseFirestore.instance.collection('mensagens');
+
+      await mensagensCollection.add({
+        'remetenteId': '',
+        'chatId': '',
+        'text': '',
+        'timestamp': '',
+      });
+
+      print('Coleção de mensagens criada com sucesso!');
+    } catch (e) {
+      print('Erro ao criar coleção de mensagens: $e');
+    }
+  }*/
 }
