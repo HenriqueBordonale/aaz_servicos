@@ -4,25 +4,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class Message {
-  final String sender;
-  final String text;
-  final DateTime timestamp;
-
-  Message({
-    required this.sender,
-    required this.text,
-    required this.timestamp,
-  });
-}
-
 class Chat {
   final String chatId;
-  final List<Message> messages;
+  String? nomeUsuario;
 
-  Chat({required this.chatId, required this.messages});
+  Chat({
+    required this.chatId,
+    this.nomeUsuario,
+  });
 
-  Chat.empty({required this.chatId}) : messages = [];
+  Chat.empty({required this.chatId});
 }
 
 class ChatScreen extends StatefulWidget {
@@ -147,36 +138,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> loadChats() async {
-    try {
-      QuerySnapshot<Map<String, dynamic>> snapshot =
-          await FirebaseFirestore.instance.collection('chat').get();
+    QuerySnapshot<Map<String, dynamic>> chatSnapshot =
+        await FirebaseFirestore.instance.collection('chat').get();
 
-      setState(() {
-        chats = snapshot.docs.where((doc) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          return data['idContratante'] == userID ||
-              data['idOfertante'] == userID;
-        }).map((doc) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-          List<Message> messages =
-              (data['messages'] as List<dynamic>? ?? []).map((msg) {
-            return Message(
-              sender: msg['sender'],
-              text: msg['text'],
-              timestamp: (msg['timestamp'] as Timestamp).toDate(),
-            );
-          }).toList();
-
-          return Chat(
-            chatId: doc.id,
-            messages: messages,
-          );
-        }).toList();
-      });
-    } catch (e) {
-      print('Erro ao carregar chats: $e');
-    }
+    setState(() {
+      chats = chatSnapshot.docs.where((doc) {
+        Map<String, dynamic> docData = doc.data() as Map<String, dynamic>;
+        return docData['idContratante'] == userID ||
+            docData['idOfertante'] == userID;
+      }).map((doc) {
+        return Chat(chatId: doc.id);
+      }).toList();
+    });
   }
 
   void _openChatScreen(Chat chat) {

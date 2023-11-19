@@ -1,6 +1,4 @@
-import 'package:aaz_servicos/models/auth.dart';
 import 'package:aaz_servicos/pages/Chat/conversas.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aaz_servicos/models/chatModel.dart';
@@ -15,9 +13,9 @@ class ChatDetailScreen extends StatefulWidget {
 }
 
 class _ChatDetailScreenState extends State<ChatDetailScreen> {
-  Future<String?>? nomeUsuarioFuture;
+  Stream<QuerySnapshot>? messagesStream;
   final TextEditingController _messageController = TextEditingController();
-
+  String nomeUsuario = '';
   @override
   void initState() {
     super.initState();
@@ -26,31 +24,8 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<String?>(
-      future: nomeUsuarioFuture,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
-        } else if (snapshot.hasError) {
-          return Scaffold(
-            body: Center(
-              child: Text('Erro ao obter nome de usuário'),
-            ),
-          );
-        } else {
-          return _buildChatDetailScreen(snapshot.data);
-        }
-      },
-    );
-  }
-
-  Widget _buildChatDetailScreen(String? nomeUsuario) {
     return Scaffold(
-      appBar: _buildAppBar(nomeUsuario),
+      appBar: _buildAppBar(),
       body: Column(
         children: [
           Expanded(
@@ -62,7 +37,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
-  AppBar _buildAppBar(String? nomeUsuario) {
+  AppBar _buildAppBar() {
     return AppBar(
       title: Text(nomeUsuario ?? 'Nome do Usuário'),
       flexibleSpace: Container(
@@ -77,26 +52,6 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildMessagesList() {
-    return ListView.builder(
-      itemCount: widget.chat.messages.length,
-      itemBuilder: (context, index) {
-        final message = widget.chat.messages[index];
-
-        return ListTile(
-          title: Text(
-            '${message.sender}: ${message.text}',
-          ),
-          subtitle: Text('${message.timestamp}'),
-          // Adicione um ícone ou algo para distinguir as mensagens do contratante e do ofertante
-          //  leading: message.sender == widget.chat.contratanteId
-          //    ? Icon(Icons.person) // Ícone para mensagens do contratante
-          //  : Icon(Icons.shopping_cart), // Ícone para mensagens do ofertante
-        );
-      },
     );
   }
 
@@ -144,18 +99,57 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
     );
   }
 
+  Widget _buildMessagesList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: messagesStream,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          print('Erro ao carregar mensagens: ${snapshot.error}');
+          return Center(child: Text('Erro ao carregar mensagens'));
+        } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return Center(child: Text('Sem mensagens'));
+        } else {
+          var messages = snapshot.data!.docs;
+          List<Widget> messageWidgets = [];
+
+          for (var message in messages) {
+            var messageData = message.data() as Map<String, dynamic>?;
+            if (messageData != null) {
+              var messageText = messageData['text'] ?? '';
+              var sender = messageData['sender'] ?? '';
+              var messageWidget = ListTile(
+                title: Text('$sender: $messageText'),
+              );
+              messageWidgets.add(messageWidget);
+            }
+          }
+
+          return ListView(
+            children: messageWidgets,
+          );
+        }
+      },
+    );
+  }
+
   Future<void> _initializeData() async {
     try {
       String? tipoUsuario = await ChatModel().getUserType();
-      print('$tipoUsuario');
       String idChat = widget.chat.chatId;
 
       if (tipoUsuario != null) {
-        String? nomeUsuario =
+        messagesStream = FirebaseFirestore.instance
+            .collection('mensagens')
+            .where('chatId', isEqualTo: idChat)
+            .orderBy('timestamp')
+            .snapshots();
+
+        String? nomeUsuarioa =
             await ChatModel().getNameUser(idChat, tipoUsuario);
-        print('$nomeUsuario');
         setState(() {
-          nomeUsuarioFuture = Future.value(nomeUsuario);
+          widget.chat.nomeUsuario = nomeUsuarioa;
         });
       } else {
         print('Erro: tipoUsuario é nulo');
@@ -167,16 +161,13 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
 
   void _sendMessage() async {
     String messageText = _messageController.text.trim();
-    if (messageText.isNotEmpty) {
-      String idRemetente = FirebaseAuth.instance.currentUser!.uid;
-      final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-      await FirebaseFirestore.instance
-          .collection(
-              'mensagens') // Substitua 'messages' pelo nome da sua coleção
-          .add({
-        'sender': idRemetente,
+    String? nomeUsuario = widget.chat.nomeUsuario;
+
+    if (messageText.isNotEmpty && nomeUsuario != null) {
+      await FirebaseFirestore.instance.collection('mensagens').add({
+        'sender': nomeUsuario,
         'chatId': widget.chat.chatId,
-        'text': messageText,
+        'text': messageText.toString(),
         'timestamp': FieldValue.serverTimestamp(),
       });
 
