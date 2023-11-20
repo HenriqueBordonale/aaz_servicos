@@ -92,4 +92,37 @@ class DatabaseMethods {
       return null;
     }
   }
+
+  Future<String?> getUserName() async {
+    // Verifica se há um usuário autenticado
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      // Obtém o UID do usuário autenticado
+      String uid = user.uid;
+
+      // Consulta a coleção 'user' utilizando o UID
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance.collection('user').doc(uid).get();
+
+      // Verifica se o documento existe e contém o campo 'name'
+      if (snapshot.exists) {
+        String? userName = snapshot['nome'];
+        return userName;
+      } else {
+        // O documento não existe ou não contém o campo 'name'
+        return null;
+      }
+    }
+  }
+
+// Exemplo de uso:
+  void main() async {
+    String? userName = await getUserName();
+    if (userName != null) {
+      print('Nome do usuário: $userName');
+    } else {
+      print('Usuário não autenticado ou nome não encontrado.');
+    }
+  }
 }

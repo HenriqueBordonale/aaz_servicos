@@ -8,10 +8,7 @@ class Chat {
   final String chatId;
   String? nomeUsuario;
 
-  Chat({
-    required this.chatId,
-    this.nomeUsuario,
-  });
+  Chat({required this.chatId, this.nomeUsuario});
 
   Chat.empty({required this.chatId});
 }
@@ -73,14 +70,6 @@ class _ChatScreenState extends State<ChatScreen> {
                           leading: CircularProgressIndicator(),
                           title: Text('Carregando...'),
                         );
-                      } else if (snapshot.hasError) {
-                        return ListTile(
-                          leading: const Icon(
-                            Icons.error,
-                            size: 30,
-                          ),
-                          title: Text('Erro: ${snapshot.error}'),
-                        );
                       } else {
                         return ListTile(
                           leading: FutureBuilder<String?>(
@@ -89,11 +78,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               if (imageSnapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return CircularProgressIndicator();
-                              } else if (imageSnapshot.hasError) {
-                                return const Icon(
-                                  Icons.error,
-                                  size: 40,
-                                );
                               } else {
                                 final String? imageUrlPerfil =
                                     imageSnapshot.data;
