@@ -9,16 +9,56 @@ class Perfil {
 
   Future<String?> createPerfil(String idServico, String descricao, String nome,
       String categoria, String especificacao, String imageUrl) async {
-    try {
-      final userDocRef =
-          FirebaseFirestore.instance.collection('user').doc(idofer);
-      DocumentSnapshot userSnapshot = await userDocRef.get();
+    final userDocRef =
+        FirebaseFirestore.instance.collection('user').doc(idofer);
+    DocumentSnapshot userSnapshot = await userDocRef.get();
+    Map<String, dynamic> userData = userSnapshot.data() as Map<String, dynamic>;
+    final perfilDocRef =
+        await FirebaseFirestore.instance.collection('perfis').add({
+      'idOfertante': idofer,
+      'idServico': idServico,
+      'descricao': descricao,
+      'nome': nome,
+      'categoria': categoria,
+      'especificacao': especificacao,
+      'avaliacao': '',
+      'quantidade': 0,
+      'imageUrl': imageUrl,
+      'genero': userData['genero'],
+      'cidade': userData['cidade'],
+      'uf': userData['uf'],
+    });
+
+    final idPerfil = perfilDocRef.id; // Obtenha o ID do perfil criado
+
+    print('Perfil criado com sucesso. ID do perfil: $idPerfil');
+
+    // Atualize o campo no documento da coleção 'servico' identificado por idServico
+    final servicoDocRef =
+        FirebaseFirestore.instance.collection('servicos').doc(idServico);
+    await servicoDocRef.update({
+      'idPerfil': idPerfil,
+      // Outros campos do serviço a serem atualizados, se houver
+    });
+
+    return idPerfil;
+  }
+
+  Future<void> updatePerfil(String idPerfil, String descricao, String nome,
+      String categoria, String especificacao, String imageUrl) async {
+    final perfilDocRef =
+        FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
+
+    // Obtenha dados do documento 'user' correspondente
+    final userDocRef =
+        FirebaseFirestore.instance.collection('user').doc(idofer);
+
+    DocumentSnapshot userSnapshot = await userDocRef.get();
+    if (userSnapshot.exists) {
       Map<String, dynamic> userData =
           userSnapshot.data() as Map<String, dynamic>;
-      final perfilDocRef =
-          await FirebaseFirestore.instance.collection('perfis').add({
-        'idOfertante': idofer,
-        'idServico': idServico,
+
+      await perfilDocRef.update({
         'descricao': descricao,
         'nome': nome,
         'categoria': categoria,
@@ -30,58 +70,8 @@ class Perfil {
         'cidade': userData['cidade'],
         'uf': userData['uf'],
       });
-
-      final idPerfil = perfilDocRef.id; // Obtenha o ID do perfil criado
-
-      print('Perfil criado com sucesso. ID do perfil: $idPerfil');
-
-      // Atualize o campo no documento da coleção 'servico' identificado por idServico
-      final servicoDocRef =
-          FirebaseFirestore.instance.collection('servicos').doc(idServico);
-      await servicoDocRef.update({
-        'idPerfil': idPerfil,
-        // Outros campos do serviço a serem atualizados, se houver
-      });
-
-      return idPerfil;
-    } catch (e) {
-      print('Erro ao criar o perfil: $e');
-      return null;
-    }
-  }
-
-  Future<void> updatePerfil(String idPerfil, String descricao, String nome,
-      String categoria, String especificacao, String imageUrl) async {
-    try {
-      final perfilDocRef =
-          FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
-
-      // Obtenha dados do documento 'user' correspondente
-      final userDocRef =
-          FirebaseFirestore.instance.collection('user').doc(idofer);
-
-      DocumentSnapshot userSnapshot = await userDocRef.get();
-      if (userSnapshot.exists) {
-        Map<String, dynamic> userData =
-            userSnapshot.data() as Map<String, dynamic>;
-
-        await perfilDocRef.update({
-          'descricao': descricao,
-          'nome': nome,
-          'categoria': categoria,
-          'especificacao': especificacao,
-          'avaliacao': '',
-          'quantidade': '',
-          'imageUrl': imageUrl,
-          'genero': userData['genero'],
-          'cidade': userData['cidade'],
-          'uf': userData['uf'],
-        });
-      } else {
-        print('Documento user não encontrado para o ID: $idofer');
-      }
-    } catch (e) {
-      print('Erro ao atualizar perfil: $e');
+    } else {
+      print('Documento user não encontrado para o ID: $idofer');
     }
   }
 
@@ -108,52 +98,77 @@ class Perfil {
   void consultarDocServico(
       void Function(String servico, String especificacao)
           onDataReceived) async {
-    try {
-      final querySnapshot = await FirebaseFirestore.instance
-          .collection('servicos')
-          .where('userId', isEqualTo: idofer)
-          .get();
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('servicos')
+        .where('userId', isEqualTo: idofer)
+        .get();
 
-      if (querySnapshot.docs.isNotEmpty) {
-        // Se houver documentos correspondentes à consulta
-        final document = querySnapshot
-            .docs[0]; // Assumindo que há apenas um documento correspondente
+    if (querySnapshot.docs.isNotEmpty) {
+      // Se houver documentos correspondentes à consulta
+      final document = querySnapshot
+          .docs[0]; // Assumindo que há apenas um documento correspondente
 
-        String servico = document.get('nome');
-        String especificacao = document.get('especificacao');
+      String servico = document.get('nome');
+      String especificacao = document.get('especificacao');
 
-        print('Dados obtidos com sucesso:');
-        print('Serviço: $servico');
-        print('Especificação: $especificacao');
+      print('Dados obtidos com sucesso:');
+      print('Serviço: $servico');
+      print('Especificação: $especificacao');
 
-        onDataReceived(servico, especificacao);
-      } else {
-        // Não foram encontrados documentos correspondentes à consulta
-        print('Nenhum documento correspondente encontrado');
-      }
-    } catch (e) {
-      print('Erro ao buscar os serviços: $e');
+      onDataReceived(servico, especificacao);
+    } else {
+      // Não foram encontrados documentos correspondentes à consulta
+      print('Nenhum documento correspondente encontrado');
     }
   }
 
   Future<void> deleteImageFromStorage(String imageUrl, String idServico) async {
-    try {
-      // Exclua a imagem do Firebase Storage
-      final Reference imageRef = FirebaseStorage.instance.refFromURL(imageUrl);
-      await imageRef.delete();
+    // Exclua a imagem do Firebase Storage
+    final Reference imageRef = FirebaseStorage.instance.refFromURL(imageUrl);
+    await imageRef.delete();
 
-      // Atualize o documento no Cloud Firestore para remover a referência da imagem
-      final servicoRef = _firestore.collection('servicos').doc(idServico);
-      final servicoDoc = await servicoRef.get();
-      if (servicoDoc.exists) {
-        final List<String> photos =
-            List<String>.from(servicoDoc['photos'] ?? []);
-        photos.remove(imageUrl); // Remova a URL da imagem da lista de fotos
-        await servicoRef
-            .update({'photos': photos}); // Atualize a lista no Firestore
+    // Atualize o documento no Cloud Firestore para remover a referência da imagem
+    final servicoRef = _firestore.collection('servicos').doc(idServico);
+    final servicoDoc = await servicoRef.get();
+    if (servicoDoc.exists) {
+      final List<String> photos = List<String>.from(servicoDoc['photos'] ?? []);
+      photos.remove(imageUrl); // Remova a URL da imagem da lista de fotos
+      await servicoRef
+          .update({'photos': photos}); // Atualize a lista no Firestore
+    }
+  }
+
+  Future<double?> calcularMediaNotas(String idPerfilAtual) async {
+    final QuerySnapshot feedbackSnapshot = await FirebaseFirestore.instance
+        .collection('feedback')
+        .where('idPerfil', isEqualTo: idPerfilAtual)
+        .get();
+
+    if (feedbackSnapshot.docs.isEmpty) {
+      // Não há feedbacks para calcular a média
+      return null;
+    }
+
+    double somaNotas = 0;
+    int totalFeedbacks = 0;
+
+    for (final DocumentSnapshot feedbackDoc in feedbackSnapshot.docs) {
+      final Map<String, dynamic> feedbackData =
+          feedbackDoc.data() as Map<String, dynamic>;
+
+      if (feedbackData.containsKey('nota')) {
+        somaNotas += (feedbackData['nota'] as num).toDouble();
+        totalFeedbacks++;
       }
-    } catch (e) {
-      print('Erro ao excluir imagem: $e');
+    }
+
+    if (totalFeedbacks > 0) {
+      // Calcula a média das notas
+      double mediaNotas = somaNotas / totalFeedbacks;
+      return mediaNotas;
+    } else {
+      // Não há notas para calcular a média
+      return null;
     }
   }
 }

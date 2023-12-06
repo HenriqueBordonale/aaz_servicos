@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/models/perfilProfi.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -17,8 +16,6 @@ class perfilprofissional extends StatefulWidget {
 }
 
 class _perfilprofissional extends State<perfilprofissional> {
-  String? imageUrlPerfil;
-  String? descricao;
   bool _isLoading = false;
   String? idPerfil;
   String? imageUrlMidia;
@@ -30,19 +27,21 @@ class _perfilprofissional extends State<perfilprofissional> {
   @override
   void initState() {
     super.initState();
-    checkIfProfileExists();
+
     Perfil().consultarDocUser(onDataReceivedToUser);
     Perfil().consultarDocServico(onDataReceivedToServico);
     loadUserPhotos();
     loadInfoPerfil();
-    LoadUrlImage();
   }
 
-  String nome = '';
-  String cidade = '';
-  String uf = '';
-  String servico = '';
-  String especificacao = '';
+  String? nome;
+  String? descricao;
+  String? cidade;
+  String? uf;
+  String? servico;
+  String? especificacao;
+  String? imageUrlPerfil;
+  int? cont;
 
   @override
   Widget build(BuildContext context) {
@@ -108,14 +107,45 @@ class _perfilprofissional extends State<perfilprofissional> {
                       Text(
                         '$nome',
                         style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                            fontSize: 22, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(
-                        height: 10,
+                        height: 5,
                       ),
-                      Text('CARREGANDO'),
-                      const SizedBox(
-                        height: 4,
+                      FutureBuilder<double?>(
+                        future: Perfil().calcularMediaNotas(idPerfil ?? '0'),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Text('CARREGANDO');
+                          } else {
+                            double mediaNotas =
+                                snapshot.data != null ? snapshot.data! : 0.0;
+
+                            return Row(
+                              children: [
+                                Text(
+                                  '$mediaNotas',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Color.fromARGB(207, 10, 10, 10),
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'inter',
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Icon(
+                                  Icons.star,
+                                  size: 25,
+                                  color: Color.fromARGB(255, 243, 160, 51),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            );
+                          }
+                        },
                       ),
                       Text('$servico'),
                       const SizedBox(
@@ -129,7 +159,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                       const SizedBox(
                         height: 4,
                       ),
-                      Text('Contratações'),
+                      Text('Contratações - $cont'),
                     ],
                   ),
                 ),
@@ -364,22 +394,23 @@ class _perfilprofissional extends State<perfilprofissional> {
     );
   }
 
-  Future<void> checkIfProfileExists() async {
+  Future<String?> checkIfProfileExists() async {
     final profilesCollection = FirebaseFirestore.instance.collection('perfis');
     final querySnapshot = await profilesCollection
         .where('idServico', isEqualTo: widget.idServico)
         .get();
 
     if (querySnapshot.docs.isNotEmpty) {
-      // Um perfil com o mesmo idServico já existe
+      idPerfil = querySnapshot.docs.first.id;
       setState(() {
         perfilCriado = true;
-        idPerfil = querySnapshot.docs.first.id;
       });
+      return idPerfil;
     }
   }
 
   Future<void> loadUserPhotos() async {
+    idPerfil = await checkIfProfileExists();
     if (idPerfil != null) {
       final perfilPhotos =
           await _firestore.collection('perfis').doc(idPerfil).get();
@@ -395,16 +426,20 @@ class _perfilprofissional extends State<perfilprofissional> {
   }
 
   Future<void> loadInfoPerfil() async {
+    idPerfil = await checkIfProfileExists();
     final profilesCollection = FirebaseFirestore.instance.collection('perfis');
-    final querySnapshot = await profilesCollection
-        .where('idServico', isEqualTo: widget.idServico)
-        .get();
+    final perfilDocument = await profilesCollection.doc(idPerfil).get();
+    if (perfilDocument.exists) {
+      final Map<String, dynamic>? data = perfilDocument.data();
 
-    if (querySnapshot.docs.isNotEmpty) {
-      final descricaoDoc = querySnapshot.docs.first.data()?['descricao'];
-      setState(() {
-        descricao = descricaoDoc as String?;
-      });
+      if (data != null) {
+        setState(() {
+          descricao = data['descricao'] as String?;
+          imageUrlPerfil = data['imageUrl'] as String?;
+          cont = data['quantidade'] as int?;
+          print("teste$cont");
+        });
+      }
     }
   }
 
@@ -452,13 +487,6 @@ class _perfilprofissional extends State<perfilprofissional> {
     setState(() {
       this.servico = servico;
       this.especificacao = especificacao;
-    });
-  }
-
-  Future<void> LoadUrlImage() async {
-    String? _imageUrl = await DatabaseMethods().checkIfImageExists();
-    setState(() {
-      imageUrlPerfil = _imageUrl; // Atualize a variável com o valor exato
     });
   }
 

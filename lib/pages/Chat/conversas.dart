@@ -6,11 +6,20 @@ import 'package:flutter/material.dart';
 
 class Chat {
   final String chatId;
+  final String idPerfil;
   String? nomeUsuario;
+  String? servFinalizado;
 
-  Chat({required this.chatId, this.nomeUsuario});
+  Chat(
+      {required this.chatId,
+      required this.idPerfil,
+      this.nomeUsuario,
+      required this.servFinalizado});
 
-  Chat.empty({required this.chatId});
+  Chat.empty(
+      {required this.chatId,
+      required this.idPerfil,
+      required this.servFinalizado});
 }
 
 class ChatScreen extends StatefulWidget {
@@ -56,12 +65,17 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.only(top: 20, left: 10, right: 10),
               itemCount: chats.length,
               itemBuilder: (context, index) {
+                final chat = chats[index];
+
                 return Card(
                   elevation: 5,
-                  margin: EdgeInsets.symmetric(
+                  margin: const EdgeInsets.symmetric(
                     vertical: 10,
                     horizontal: 15,
                   ),
+                  color: chat.servFinalizado == 'C'
+                      ? Color.fromARGB(255, 225, 224, 224)
+                      : Colors.white,
                   child: FutureBuilder<String?>(
                     future: _initializeData(index),
                     builder: (context, snapshot) {
@@ -71,36 +85,66 @@ class _ChatScreenState extends State<ChatScreen> {
                           title: Text('Carregando...'),
                         );
                       } else {
+                        String? servicoFinalizado = chat.servFinalizado;
+
                         return ListTile(
-                          leading: FutureBuilder<String?>(
-                            future: getImageProfile(index),
-                            builder: (context, imageSnapshot) {
-                              if (imageSnapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return CircularProgressIndicator();
-                              } else {
-                                final String? imageUrlPerfil =
-                                    imageSnapshot.data;
-                                return imageUrlPerfil != null
-                                    ? ClipRRect(
-                                        borderRadius: BorderRadius.circular(75),
-                                        child: Image.network(
-                                          imageUrlPerfil,
-                                          fit: BoxFit.cover,
-                                          width: 40,
-                                          height: 40,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.account_circle,
-                                        size: 40,
-                                      );
-                              }
-                            },
+                          leading: Stack(
+                            children: [
+                              FutureBuilder<String?>(
+                                future: getImageProfile(index),
+                                builder: (context, imageSnapshot) {
+                                  if (imageSnapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return CircularProgressIndicator();
+                                  } else {
+                                    final String? imageUrlPerfil =
+                                        imageSnapshot.data;
+                                    return imageUrlPerfil != null
+                                        ? ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(75),
+                                            child: Image.network(
+                                              imageUrlPerfil,
+                                              fit: BoxFit.cover,
+                                              width: 45,
+                                              height: 45,
+                                            ),
+                                          )
+                                        : const Icon(
+                                            Icons.account_circle,
+                                            size: 45,
+                                          );
+                                  }
+                                },
+                              ),
+                              if (servicoFinalizado == 'C')
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Icon(
+                                    Icons.check_circle,
+                                    color: Color.fromARGB(200, 244, 67, 54),
+                                    size: 20,
+                                  ),
+                                ),
+                            ],
                           ),
-                          title: Text('${snapshot.data}'),
+                          title: Text(
+                            '${snapshot.data}',
+                            style: TextStyle(
+                              fontSize: 18,
+                            ),
+                          ),
                           onTap: () {
-                            _openChatScreen(chats[index]);
+                            if (servicoFinalizado != 'C') {
+                              _openChatScreen(chats[index]);
+                            } else {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: const Text(
+                                    'Essa conversa já foi finalizada'),
+                              ));
+                            }
                           },
                         );
                       }
@@ -131,7 +175,12 @@ class _ChatScreenState extends State<ChatScreen> {
         return docData['idContratante'] == userID ||
             docData['idOfertante'] == userID;
       }).map((doc) {
-        return Chat(chatId: doc.id);
+        Map<String, dynamic> docData = doc.data() as Map<String, dynamic>;
+        return Chat(
+          chatId: doc.id,
+          idPerfil: docData['idPerfil'],
+          servFinalizado: docData['servicoFinalizado'],
+        );
       }).toList();
     });
   }
@@ -148,7 +197,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<String?> _initializeData(int index) async {
     try {
       String? tipoUsuario = await ChatModel().getUserType();
-      print('$tipoUsuario');
+
       String idChat = chats[index].chatId;
 
       if (tipoUsuario != null) {

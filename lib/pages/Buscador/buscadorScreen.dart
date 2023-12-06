@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aaz_servicos/pages/Buscador/filtro.dart';
 import 'package:aaz_servicos/pages/Buscador/perfilCard.dart';
+import 'package:aaz_servicos/models/perfilProfi.dart';
 
 class ServicosScreen extends StatefulWidget {
   @override
@@ -81,6 +82,7 @@ class _ServicosScreenState extends State<ServicosScreen> {
                     );
                   },
                   imageUrl: _perfisExibidos[index].imageUrl,
+                  idPerfil: _perfisExibidos[index].idPerfil,
                 );
               },
             ),

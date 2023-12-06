@@ -84,7 +84,7 @@ class _Config extends State<Config> {
                 'Minha Conta',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                    color: Color.fromARGB(255, 37, 37, 37),
+                    color: Color.fromARGB(255, 70, 70, 70),
                     fontFamily: 'Inter',
                     fontSize: 30),
               ),
@@ -315,91 +315,101 @@ class _Config extends State<Config> {
               ),
             ),
             const SizedBox(
-              height: 10,
+              height: 15,
             ),
-            Divider(
-              color: Colors.grey,
-              thickness: 1,
-            ),
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(
-                          8), // Espaçamento em todos os lados
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => esqueceu_senha(),
-                            ),
-                          );
-                        },
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.lock,
-                              color: Color.fromARGB(255, 68, 68, 68),
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              'Alterar senha',
-                              style: TextStyle(
-                                color: Color.fromARGB(255, 68, 68, 68),
-                                fontFamily: 'inter',
-                                fontSize: 17,
+            Container(
+              width: 350,
+              margin: EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Color.fromARGB(255, 250, 248, 248), // Cor de fundo
+                borderRadius: BorderRadius.circular(30),
+                boxShadow: [
+                  BoxShadow(
+                    color:
+                        const Color.fromARGB(255, 78, 78, 78).withOpacity(0.5),
+                    spreadRadius: 1,
+                    blurRadius: 3,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(
+                            8), // Espaçamento em todos os lados
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => esqueceu_senha(),
                               ),
-                            ),
-                          ],
+                            );
+                          },
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.lock,
+                                color: const Color.fromARGB(202, 255, 86, 34),
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Alterar senha',
+                                style: TextStyle(
+                                  color: Color.fromARGB(201, 82, 82, 82),
+                                  fontFamily: 'inter',
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(
-                          8), // Espaçamento em todos os lados
-                      child: TextButton(
-                        onPressed: () {
-                          if (_isEditing) {
-                            _updateUserData();
-                          } else {
-                            setState(() {
-                              _isEditing = true;
-                            });
-                          }
-                        },
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              _isEditing ? Icons.save : Icons.edit,
-                              size: 20,
-                              color: Color.fromARGB(255, 68, 68, 68),
-                            ),
-                            const SizedBox(
-                              width: 5,
-                            ),
-                            Text(
-                              _isEditing ? 'Salvar' : 'Editar',
-                              style: const TextStyle(
-                                color: Color.fromARGB(255, 68, 68, 68),
-                                fontFamily: 'inter',
-                                fontSize: 18,
+                      Padding(
+                        padding: const EdgeInsets.all(
+                            8), // Espaçamento em todos os lados
+                        child: TextButton(
+                          onPressed: () {
+                            if (_isEditing) {
+                              _updateUserData();
+                            } else {
+                              setState(() {
+                                _isEditing = true;
+                              });
+                            }
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                _isEditing ? Icons.save : Icons.edit,
+                                size: 20,
+                                color: const Color.fromARGB(202, 255, 86, 34),
                               ),
-                            ),
-                          ],
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                _isEditing ? 'Salvar' : 'Editar',
+                                style: const TextStyle(
+                                  color: Color.fromARGB(201, 82, 82, 82),
+                                  fontFamily: 'inter',
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Divider(
-              color: Colors.grey, thickness: 1, // Adicione uma linha divisória
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(
               height: 15,
@@ -510,24 +520,31 @@ class _Config extends State<Config> {
 
   // Carregar a lista de cidades de uma UF específica
   Future<void> _loadCities(String uf) async {
-    final response = await http.get(
-      Uri.parse(
-          'https://servicodados.ibge.gov.br/api/v1/localidades/estados/$uf/municipios'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'https://servicodados.ibge.gov.br/api/v1/localidades/estados/$uf/municipios'),
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> data = json.decode(response.body);
-      setState(() {
-        _cities = data.map((city) => city['nome']).cast<String>().toList();
-      });
-    } else {
-      throw Exception('Falha ao buscar cidades');
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        setState(() {
+          _cities = data.map((city) => city['nome']).cast<String>().toList();
+        });
+      } else {
+        throw Exception(
+            'Falha ao buscar cidades. Código de status: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Erro ao carregar cidades: $e');
     }
   }
 
   Future<void> LoadUrlImage() async {
     String? _imageUrl = await DatabaseMethods().checkIfImageExists();
-    imageUrl = _imageUrl;
+    setState(() {
+      imageUrl = _imageUrl;
+    });
   }
 
   Future<void> _loadUserData() async {

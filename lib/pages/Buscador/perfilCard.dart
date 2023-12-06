@@ -1,11 +1,10 @@
+import 'package:aaz_servicos/models/perfilProfi.dart';
 import 'package:flutter/material.dart';
 
 class Profile {
   final String nome;
   final String categoria;
   final String especificacao;
-  // final double avaliacao;
-  // final double quantidade;
   final String imageUrl;
   final String idPerfil;
   final String genero;
@@ -16,8 +15,6 @@ class Profile {
       {required this.nome,
       required this.categoria,
       required this.especificacao,
-      // required this.avaliacao,
-      // required this.quantidade,
       required this.imageUrl,
       required this.idPerfil,
       required this.genero,
@@ -26,20 +23,18 @@ class Profile {
 }
 
 class ProfileCard extends StatelessWidget {
+  final String idPerfil;
   final String nome;
   final String categoria;
   final String especificacao;
-  // final double avaliacao;
-  //final double quantidade;
   final VoidCallback onTao;
   final String imageUrl;
 
   ProfileCard({
+    required this.idPerfil,
     required this.nome,
     required this.categoria,
     required this.especificacao,
-    // required this.avaliacao,
-    // required this.quantidade,
     required this.onTao,
     required this.imageUrl,
   });
@@ -60,7 +55,40 @@ class ProfileCard extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Avaliação: 4.5', style: TextStyle(fontSize: 16)),
+          FutureBuilder<double?>(
+            future: Perfil().calcularMediaNotas(idPerfil ?? '0'),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Text('CARREGANDO');
+              } else {
+                double mediaNotas =
+                    snapshot.data != null ? snapshot.data! : 0.0;
+
+                return Row(
+                  children: [
+                    Text(
+                      '$mediaNotas',
+                      style: const TextStyle(
+                        fontSize: 17,
+                        color: Color.fromARGB(207, 10, 10, 10),
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'inter',
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    const Icon(
+                      Icons.star,
+                      size: 22,
+                      color: Color.fromARGB(255, 243, 160, 51),
+                    ),
+                    const SizedBox(width: 10),
+                  ],
+                );
+              }
+            },
+          ),
           Text('Categoria: $categoria', style: TextStyle(fontSize: 16)),
           Text('Especificação: $especificacao', style: TextStyle(fontSize: 16)),
         ],

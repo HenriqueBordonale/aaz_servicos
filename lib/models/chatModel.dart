@@ -33,6 +33,8 @@ class ChatModel {
         'idContratante': idContr,
         'OfertanteImage': urlStorageOfer,
         'ContratanteImage': urlStorageCont,
+        'idPerfil': idPerfil,
+        'servicoFinalizado': 'A',
       });
       //Referencia da coleção user com id Ofertante
       final ofertanteDocRef = FirebaseFirestore.instance

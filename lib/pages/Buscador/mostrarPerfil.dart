@@ -1,8 +1,9 @@
-import 'dart:io';
 import 'package:aaz_servicos/models/chatModel.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:aaz_servicos/models/feedback.dart';
+import 'package:aaz_servicos/models/perfilProfi.dart';
+import 'package:aaz_servicos/pages/Feedback/feedbackCard.dart';
+import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MostrarPerfil extends StatefulWidget {
@@ -18,13 +19,15 @@ class _mostrarPerfil extends State<MostrarPerfil> {
   String? imageUrlMidia;
   List<String> photoUrlsMidia = [];
 
+  FeedbackM feedbackService = FeedbackM();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  List<Map<String, dynamic>> feedbackList = [];
   @override
   void initState() {
     super.initState();
     loadUserPhotos();
     loadInfoPerfil();
+    _carregarFeedbacks();
   }
 
   String? descricao;
@@ -34,6 +37,7 @@ class _mostrarPerfil extends State<MostrarPerfil> {
   String? servico;
   String? especificacao;
   String? imageUrlPerfil;
+  int? cont;
 
   @override
   Widget build(BuildContext context) {
@@ -99,33 +103,61 @@ class _mostrarPerfil extends State<MostrarPerfil> {
                       Text(
                         '$nome',
                         style: const TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold),
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-                      const SizedBox(
-                        height: 10,
+                      const SizedBox(height: 5),
+                      FutureBuilder<double?>(
+                        future: Perfil().calcularMediaNotas(widget
+                            .idPerfil), // Substitua idPerfilAtual pelo valor correto
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Text('CARREGANDO');
+                          } else {
+                            double mediaNotas =
+                                snapshot.data != null ? snapshot.data! : 0.0;
+
+                            return Row(
+                              children: [
+                                Text(
+                                  '$mediaNotas',
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    color: Color.fromARGB(207, 10, 10, 10),
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'inter',
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 5,
+                                ),
+                                const Icon(
+                                  Icons.star,
+                                  size: 25,
+                                  color: Color.fromARGB(255, 243, 160, 51),
+                                ),
+                                const SizedBox(width: 10),
+                              ],
+                            );
+                          }
+                        },
                       ),
-                      Text('CARREGANDO'),
-                      const SizedBox(
-                        height: 4,
-                      ),
+                      const SizedBox(height: 4),
                       Text('$servico'),
-                      const SizedBox(
-                        height: 4,
-                      ),
+                      const SizedBox(height: 4),
                       Text('$especificacao'),
-                      const SizedBox(
-                        height: 4,
-                      ),
+                      const SizedBox(height: 4),
                       Text('$cidade - $uf'),
-                      const SizedBox(
-                        height: 4,
-                      ),
-                      Text('Contratações'),
+                      const SizedBox(height: 4),
+                      Text('Contratações - $cont'),
                     ],
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 20),
             Container(
               padding: const EdgeInsets.all(15),
@@ -149,7 +181,7 @@ class _mostrarPerfil extends State<MostrarPerfil> {
                 ),
                 child: Column(
                   children: [
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
@@ -208,7 +240,7 @@ class _mostrarPerfil extends State<MostrarPerfil> {
                 ),
                 child: Column(
                   children: [
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
@@ -226,7 +258,7 @@ class _mostrarPerfil extends State<MostrarPerfil> {
                     const SizedBox(
                       height: 10,
                     ),
-                    Container(
+                    SizedBox(
                       height: 120,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
@@ -258,12 +290,24 @@ class _mostrarPerfil extends State<MostrarPerfil> {
                 ),
               ),
             ),
+            const SizedBox(
+              height: 20,
+            ),
+
+            //Bloco Feedback
+            FeedbackCard(feedbackList: feedbackList),
 
             const SizedBox(height: 20), // Espaçamento entre blocos
             TextButton(
               onPressed: () {
                 ChatModel().createChat(widget.idPerfil);
                 // ChatModel().createMensagens();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const menuPrincipal(),
+                  ),
+                );
               },
               child: Ink(
                 decoration: BoxDecoration(
@@ -297,6 +341,27 @@ class _mostrarPerfil extends State<MostrarPerfil> {
     );
   }
 
+  Future<void> _carregarFeedbacks() async {
+    try {
+      // Chame a função assíncrona e aguarde o resultado usando 'await'
+      feedbackList = await feedbackService.getFeedbacks(widget.idPerfil);
+
+      // Agora você pode usar feedbackList conforme necessário
+      if (feedbackList.isNotEmpty) {
+        print('Feedbacks carregados com sucesso.');
+        print('Primeiro feedback: ${feedbackList.first}');
+      } else {
+        print('Nenhum feedback encontrado.');
+      }
+
+      setState(() {
+        // Atualize o estado se necessário
+      });
+    } catch (e) {
+      print("Erro ao carregar feedbacks: $e");
+    }
+  }
+
   Future<void> loadUserPhotos() async {
     if (widget.idPerfil != null) {
       final perfilPhotos =
@@ -326,6 +391,7 @@ class _mostrarPerfil extends State<MostrarPerfil> {
           especificacao = data['especificacao'] as String?;
           nome = data['nome'] as String?;
           imageUrlPerfil = data['imageUrl'] as String?;
+          cont = data['quantidade'] as int?;
         });
       }
     }

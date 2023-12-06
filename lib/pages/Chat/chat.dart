@@ -1,8 +1,8 @@
-import 'dart:math';
-
 import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/pages/Chat/bubbleMessage.dart';
 import 'package:aaz_servicos/pages/Chat/conversas.dart';
+import 'package:aaz_servicos/pages/Feedback/feedbackScreen.dart';
+import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:aaz_servicos/models/chatModel.dart';
@@ -20,45 +20,68 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   Stream<QuerySnapshot>? messagesStream;
   final TextEditingController _messageController = TextEditingController();
   String? userRemetente;
+  String? tipouser;
+  String? servFinalizado;
   @override
   void initState() {
     super.initState();
     _initializeData();
+    verificarServicoFinalizado(widget.chat.chatId);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _buildAppBar(),
-      backgroundColor: Color.fromARGB(
+      backgroundColor: const Color.fromARGB(
           255, 238, 238, 238), // Defina a cor de fundo desejada para a tela
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(
-                vertical: 15), // Adiciona espaçamento ao redor do botão
-            child: Container(
-              height: 35,
-              width: 160,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(30)),
-                gradient: LinearGradient(
-                  colors: [
-                    Color.fromARGB(81, 249, 74, 16),
-                    Color.fromARGB(76, 236, 55, 45),
-                  ],
-                ),
-              ),
-              child: TextButton(
-                child: Text(
-                  'Encerrar conversa',
-                  style: TextStyle(
-                    color: Color.fromARGB(117, 0, 0, 0),
-                    fontWeight: FontWeight.w300,
-                    fontSize: 15,
+              vertical: 15,
+            ),
+            child: Visibility(
+              visible: tipouser == 'ofertante' && servFinalizado == 'A' ||
+                  (tipouser == 'contratante' && servFinalizado == 'B'),
+              child: Container(
+                height: 35,
+                width: 160,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(30)),
+                  gradient: LinearGradient(
+                    colors: [
+                      Color.fromARGB(144, 249, 74, 16),
+                      Color.fromARGB(157, 236, 55, 45),
+                    ],
                   ),
                 ),
-                onPressed: () async {},
+                child: TextButton(
+                  child: Text(
+                    tipouser == 'ofertante'
+                        ? 'Encerrar Serviço'
+                        : 'Realizar Avaliação',
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 255, 252, 252),
+                      fontWeight: FontWeight.w300,
+                      fontSize: 15,
+                    ),
+                  ),
+                  onPressed: () async {
+                    if (tipouser == 'ofertante') {
+                      attServicoState(widget.chat.chatId);
+                    } else {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedbackScreen(
+                            idChat: widget.chat.chatId,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
               ),
             ),
           ),
@@ -100,13 +123,12 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       children: [
         Expanded(
           child: Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color.fromARGB(
                   255, 255, 255, 255), // Defina a cor de fundo desejada aqui
               border: Border(
                 top: BorderSide(
-                  color:
-                      const Color.fromARGB(255, 206, 205, 205), // Cor da borda
+                  color: Color.fromARGB(255, 206, 205, 205), // Cor da borda
                   width: 1.0, // Espessura da borda
                 ),
               ),
@@ -165,8 +187,9 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
               reverse: true,
               itemCount: messages.length,
               itemBuilder: (context, index) {
+                var invertedIndex = messages.length - 1 - index;
                 var messageData =
-                    messages[index].data() as Map<String, dynamic>?;
+                    messages[invertedIndex].data() as Map<String, dynamic>?;
 
                 if (messageData != null) {
                   var sender = messageData['sender'] ?? '';
@@ -189,29 +212,26 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
   }
 
   Future<void> _initializeData() async {
-    try {
-      String? tipoUsuario = await ChatModel().getUserType();
-      String idChat = widget.chat.chatId;
+    String? tipoUsuario = await ChatModel().getUserType();
+    print('$tipoUsuario');
+    String idChat = widget.chat.chatId;
 
-      if (tipoUsuario != null) {
-        messagesStream = FirebaseFirestore.instance
-            .collection('mensagens')
-            .where('chatId', isEqualTo: idChat)
-            .orderBy('timestamp')
-            .snapshots();
+    if (tipoUsuario != null) {
+      messagesStream = FirebaseFirestore.instance
+          .collection('mensagens')
+          .where('chatId', isEqualTo: idChat)
+          .orderBy('timestamp')
+          .snapshots();
 
-        String? nomeUsuarioa =
-            await ChatModel().getNameUser(idChat, tipoUsuario);
-        String? userremetente = await DatabaseMethods().getUserName();
-        setState(() {
-          widget.chat.nomeUsuario = nomeUsuarioa;
-          userRemetente = userremetente;
-        });
-      } else {
-        print('Erro: tipoUsuario é nulo');
-      }
-    } catch (e) {
-      print('Erro durante a inicialização de dados: $e');
+      String? nomeUsuarioa = await ChatModel().getNameUser(idChat, tipoUsuario);
+      String? userremetente = await DatabaseMethods().getUserName();
+      setState(() {
+        widget.chat.nomeUsuario = nomeUsuarioa;
+        userRemetente = userremetente;
+        tipouser = tipoUsuario;
+      });
+    } else {
+      print('Erro: tipoUsuario é nulo');
     }
   }
 
@@ -228,6 +248,99 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
       });
 
       _messageController.clear();
+    }
+  }
+
+  Future<void> attServicoState(String idChat) async {
+    bool confirmacao = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmação'),
+          content: const Text('Tem certeza de que deseja finalizar o serviço?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(true); // Confirmação positiva
+              },
+              child: const Text('Sim'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Confirmação negativa
+              },
+              child: const Text('Não'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmacao) {
+      String servicofinalizado = 'B';
+      await FirebaseFirestore.instance.collection('chat').doc(idChat).update({
+        'servicoFinalizado': servicofinalizado,
+      });
+      somarValorAoCampo();
+      // ignore: use_build_context_synchronously
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Serviço Finalizado'),
+            content: const Text(
+                'Você finalizou um serviço com sucesso\njá está disponível sua avaliação para o contratante'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const menuPrincipal(),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  Future<void> somarValorAoCampo() async {
+    String idPerfil = widget.chat.idPerfil;
+    int valorASomar = 1;
+
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      DocumentSnapshot snapshot = await transaction
+          .get(FirebaseFirestore.instance.collection('perfis').doc(idPerfil));
+
+      int quantidadeAtual = snapshot['quantidade'] ?? 0;
+      int novaQuantidade = quantidadeAtual + valorASomar;
+
+      transaction.update(
+          FirebaseFirestore.instance.collection('perfis').doc(idPerfil),
+          {'quantidade': novaQuantidade});
+    });
+    print('Operação de soma concluída com sucesso');
+  }
+
+  Future<void> verificarServicoFinalizado(String idChat) async {
+    DocumentSnapshot chatSnapshot =
+        await FirebaseFirestore.instance.collection('chat').doc(idChat).get();
+
+    if (chatSnapshot.exists) {
+      String? servicoFinalizado = chatSnapshot['servicoFinalizado'];
+
+      setState(() {
+        servFinalizado = servicoFinalizado;
+      });
+
+      print('Serviço finalizado: $servicoFinalizado');
+    } else {
+      print('Chat não encontrado');
     }
   }
 }

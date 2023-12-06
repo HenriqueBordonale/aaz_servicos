@@ -72,7 +72,7 @@ List<Widget> getScreens(String? tipoUsuario) {
   } else {
     return [
       ChatScreen(),
-      ServicosScreen(), // Use outra tela para contratantes (por exemplo, Screen2() ou algo adequado)
+      ServicosScreen(),
       const Config(),
     ];
   }

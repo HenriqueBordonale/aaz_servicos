@@ -1,12 +1,12 @@
 import 'package:aaz_servicos/pages/Buscador/mostrarPerfil.dart';
 import 'package:aaz_servicos/pages/Chat/conversas.dart';
 import 'package:aaz_servicos/pages/Configuracoes/config.dart';
+import 'package:aaz_servicos/pages/Feedback/feedbackScreen.dart';
 import 'package:aaz_servicos/pages/Login/cadastro_ofertante.dart';
 import 'package:aaz_servicos/pages/Login/esqueceu_senha.dart';
 import 'package:aaz_servicos/pages/Perfil_Profissional/perfilPro.dart';
 import 'package:aaz_servicos/pages/Servicos/meuServico.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:aaz_servicos/pages/Login/selecao_usuario.dart';
 import 'package:aaz_servicos/pages/Login/login.dart';
@@ -78,6 +78,14 @@ class MyApp extends StatelessWidget {
           final idPerfil = arguments['idPerfil'] as String;
 
           return MostrarPerfil(idPerfil: idPerfil);
+        },
+        'feedback': (context) {
+          final arguments = ModalRoute.of(context)?.settings.arguments
+                  as Map<String, dynamic>? ??
+              {};
+          final idChat = arguments['idChat'] as String;
+
+          return FeedbackScreen(idChat: idChat);
         },
       },
     );
