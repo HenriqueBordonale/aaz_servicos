@@ -8,7 +8,12 @@ class Perfil {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<String?> createPerfil(String idServico, String descricao, String nome,
-      String categoria, String especificacao, String imageUrl) async {
+      String categoria, String especificacao) async {
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('user_images/profile_images/${idofer}');
+    final urlStorageOfer = await storageRef.getDownloadURL();
+
     final userDocRef =
         FirebaseFirestore.instance.collection('user').doc(idofer);
     DocumentSnapshot userSnapshot = await userDocRef.get();
@@ -21,9 +26,8 @@ class Perfil {
       'nome': nome,
       'categoria': categoria,
       'especificacao': especificacao,
-      'avaliacao': '',
       'quantidade': 0,
-      'imageUrl': imageUrl,
+      'imageUrl': urlStorageOfer,
       'genero': userData['genero'],
       'cidade': userData['cidade'],
       'uf': userData['uf'],
@@ -45,7 +49,12 @@ class Perfil {
   }
 
   Future<void> updatePerfil(String idPerfil, String descricao, String nome,
-      String categoria, String especificacao, String imageUrl) async {
+      String categoria, String especificacao) async {
+    final storageRef = FirebaseStorage.instance
+        .ref()
+        .child('user_images/profile_images/${idofer}');
+    final urlStorageOfer = await storageRef.getDownloadURL();
+
     final perfilDocRef =
         FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
 
@@ -63,9 +72,8 @@ class Perfil {
         'nome': nome,
         'categoria': categoria,
         'especificacao': especificacao,
-        'avaliacao': '',
-        'quantidade': '',
-        'imageUrl': imageUrl,
+        'quantidade': 0,
+        'imageUrl': urlStorageOfer,
         'genero': userData['genero'],
         'cidade': userData['cidade'],
         'uf': userData['uf'],
@@ -84,7 +92,6 @@ class Perfil {
     DocumentSnapshot doc = await docRef.get();
 
     if (doc.exists) {
-      // O documento existe, agora você pode acessar os campos
       String nome = doc.get('nome');
       String cidade = doc.get('cidade');
       String uf = doc.get('uf');
@@ -122,13 +129,13 @@ class Perfil {
     }
   }
 
-  Future<void> deleteImageFromStorage(String imageUrl, String idServico) async {
+  Future<void> deleteImageFromStorage(String imageUrl, String idPerfil) async {
     // Exclua a imagem do Firebase Storage
     final Reference imageRef = FirebaseStorage.instance.refFromURL(imageUrl);
     await imageRef.delete();
 
     // Atualize o documento no Cloud Firestore para remover a referência da imagem
-    final servicoRef = _firestore.collection('servicos').doc(idServico);
+    final servicoRef = _firestore.collection('perfis').doc(idPerfil);
     final servicoDoc = await servicoRef.get();
     if (servicoDoc.exists) {
       final List<String> photos = List<String>.from(servicoDoc['photos'] ?? []);

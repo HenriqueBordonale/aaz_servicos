@@ -25,7 +25,6 @@ class esqueceu_senha extends StatelessWidget {
             ),
           ),
         ),
-        automaticallyImplyLeading: false,
       ),
       body: Container(
         padding: EdgeInsets.only(top: 10, left: 25, right: 25),

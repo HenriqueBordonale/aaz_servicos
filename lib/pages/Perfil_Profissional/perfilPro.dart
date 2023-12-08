@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/models/perfilProfi.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,6 +18,8 @@ class perfilprofissional extends StatefulWidget {
 }
 
 class _perfilprofissional extends State<perfilprofissional> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
+  String idUser = FirebaseAuth.instance.currentUser!.uid;
   bool _isLoading = false;
   String? idPerfil;
   String? imageUrlMidia;
@@ -32,6 +36,7 @@ class _perfilprofissional extends State<perfilprofissional> {
     Perfil().consultarDocServico(onDataReceivedToServico);
     loadUserPhotos();
     loadInfoPerfil();
+    getImageProfile();
   }
 
   String? nome;
@@ -338,8 +343,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                       descricao.toString(),
                       nome.toString(),
                       servico.toString(),
-                      especificacao.toString(),
-                      imageUrlPerfil.toString());
+                      especificacao.toString());
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('Perfil atualizado com sucesso!'),
                   ));
@@ -352,8 +356,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                       descricao.toString(),
                       nome.toString(),
                       servico.toString(),
-                      especificacao.toString(),
-                      imageUrlPerfil.toString());
+                      especificacao.toString());
                   setState(() {
                     perfilCriado = true;
                   });
@@ -435,12 +438,18 @@ class _perfilprofissional extends State<perfilprofissional> {
       if (data != null) {
         setState(() {
           descricao = data['descricao'] as String?;
-          imageUrlPerfil = data['imageUrl'] as String?;
           cont = data['quantidade'] as int?;
           print("teste$cont");
         });
       }
     }
+  }
+
+  Future<String?> getImageProfile() async {
+    String? imageUrl = await DatabaseMethods().getUrlImage(idUser);
+    setState(() {
+      imageUrlPerfil = imageUrl;
+    });
   }
 
   Future<void> uploadImage() async {
@@ -572,7 +581,7 @@ class _perfilprofissional extends State<perfilprofissional> {
                 // Mostre um AlertDialog com um indicador de carregamento
 
                 Perfil()
-                    .deleteImageFromStorage(imageUrls[index], widget.idServico);
+                    .deleteImageFromStorage(imageUrls[index], idPerfil ?? '');
 
                 // Remova a imagem da lista
                 imageUrls.removeAt(index);
@@ -599,7 +608,7 @@ class _perfilprofissional extends State<perfilprofissional> {
         return SingleChildScrollView(
           child: Container(
             height: MediaQuery.of(context).size.height * 0.6,
-            color: Color.fromARGB(84, 54, 53, 53),
+            color: Color.fromARGB(236, 228, 226, 226),
             child: PageView.builder(
               itemCount: imageUrls.length,
               itemBuilder: (context, index) {

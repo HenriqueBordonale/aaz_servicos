@@ -1,5 +1,6 @@
 import 'package:aaz_servicos/models/feedback.dart';
 import 'package:aaz_servicos/pages/Chat/conversas.dart';
+import 'package:aaz_servicos/pages/Menu/menuPrincipal.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -186,7 +187,12 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               onPressed: () {
                 FeedbackM().createFeedback(
                     widget.idChat, _rating, _feedbackController.text);
-                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const menuPrincipal(),
+                  ),
+                );
               },
               child: Text('Enviar'),
             ),

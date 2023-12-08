@@ -151,7 +151,7 @@ class _mostrarPerfil extends State<MostrarPerfil> {
                       const SizedBox(height: 4),
                       Text('$cidade - $uf'),
                       const SizedBox(height: 4),
-                      Text('Contratações - $cont'),
+                      Text('Contratações  $cont'),
                     ],
                   ),
                 ),
@@ -392,6 +392,8 @@ class _mostrarPerfil extends State<MostrarPerfil> {
           nome = data['nome'] as String?;
           imageUrlPerfil = data['imageUrl'] as String?;
           cont = data['quantidade'] as int?;
+          cidade = data['cidade'] as String?;
+          uf = data['uf'] as String?;
         });
       }
     }

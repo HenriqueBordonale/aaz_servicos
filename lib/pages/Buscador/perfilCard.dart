@@ -41,59 +41,76 @@ class ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      contentPadding: EdgeInsets.all(8),
-      leading: CircleAvatar(
-        radius: 35, // Tamanho da imagem de perfil
-        backgroundImage: NetworkImage(
-            imageUrl), // Carregue a imagem de perfil a partir do URL
-      ),
-      title: Text(
-        nome,
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-      ),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          FutureBuilder<double?>(
-            future: Perfil().calcularMediaNotas(idPerfil ?? '0'),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Text('CARREGANDO');
-              } else {
-                double mediaNotas =
-                    snapshot.data != null ? snapshot.data! : 0.0;
-
-                return Row(
-                  children: [
-                    Text(
-                      '$mediaNotas',
-                      style: const TextStyle(
-                        fontSize: 17,
-                        color: Color.fromARGB(207, 10, 10, 10),
-                        fontWeight: FontWeight.w500,
-                        fontFamily: 'inter',
-                      ),
-                    ),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    const Icon(
-                      Icons.star,
-                      size: 22,
-                      color: Color.fromARGB(255, 243, 160, 51),
-                    ),
-                    const SizedBox(width: 10),
-                  ],
-                );
-              }
-            },
+    return Container(
+      width: 350,
+      margin: EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white, // Cor de fundo
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 1,
+            blurRadius: 3,
+            offset: Offset(0, 3),
           ),
-          Text('Categoria: $categoria', style: TextStyle(fontSize: 16)),
-          Text('Especificação: $especificacao', style: TextStyle(fontSize: 16)),
         ],
       ),
-      onTap: onTao,
+      child: ListTile(
+        contentPadding: EdgeInsets.all(8),
+        leading: CircleAvatar(
+          radius: 35, // Tamanho da imagem de perfil
+          backgroundImage: NetworkImage(
+              imageUrl), // Carregue a imagem de perfil a partir do URL
+        ),
+        title: Text(
+          nome,
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            FutureBuilder<double?>(
+              future: Perfil().calcularMediaNotas(idPerfil ?? '0'),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Text('CARREGANDO');
+                } else {
+                  double mediaNotas =
+                      snapshot.data != null ? snapshot.data! : 0.0;
+
+                  return Row(
+                    children: [
+                      Text(
+                        '$mediaNotas',
+                        style: const TextStyle(
+                          fontSize: 17,
+                          color: Color.fromARGB(207, 10, 10, 10),
+                          fontWeight: FontWeight.w500,
+                          fontFamily: 'inter',
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      const Icon(
+                        Icons.star,
+                        size: 22,
+                        color: Color.fromARGB(255, 243, 160, 51),
+                      ),
+                      const SizedBox(width: 15),
+                    ],
+                  );
+                }
+              },
+            ),
+            Text('Categoria: $categoria', style: TextStyle(fontSize: 16)),
+            Text('Especificação: $especificacao',
+                style: TextStyle(fontSize: 16)),
+          ],
+        ),
+        onTap: onTao,
+      ),
     );
   }
 }

@@ -16,23 +16,12 @@ class ChatModel {
     DocumentSnapshot PerfilSnapshot = await PerfilDocRef.get();
     Map<String, dynamic> perfilData =
         PerfilSnapshot.data() as Map<String, dynamic>;
-    //Mapeamento para obter o id da Imagem de perfil de cada tipo de usuário
-    final storageContRef = FirebaseStorage.instance
-        .ref()
-        .child('user_images/profile_images/${idContr}');
-    final urlStorageCont = await storageContRef.getDownloadURL();
-    final storageOfertRef = FirebaseStorage.instance
-        .ref()
-        .child('user_images/profile_images/${perfilData['idOfertante']}');
-    final urlStorageOfer = await storageOfertRef.getDownloadURL();
     try {
       //Criação da coleção chat com os ids involvidos
       DocumentReference chatDocRef =
           await FirebaseFirestore.instance.collection('chat').add({
         'idOfertante': perfilData['idOfertante'],
         'idContratante': idContr,
-        'OfertanteImage': urlStorageOfer,
-        'ContratanteImage': urlStorageCont,
         'idPerfil': idPerfil,
         'servicoFinalizado': 'A',
       });

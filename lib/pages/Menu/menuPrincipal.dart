@@ -40,9 +40,9 @@ class _menuPrincipal extends State<menuPrincipal> {
               index: _currentIndex,
               height: 50.0,
               items: icons,
-              color: Color.fromARGB(193, 245, 34, 2),
-              buttonBackgroundColor: Color.fromARGB(193, 245, 34, 2),
-              backgroundColor: const Color.fromARGB(0, 131, 124, 124),
+              color: Color(0xFFF65740),
+              buttonBackgroundColor: Color(0xFFF65740),
+              backgroundColor: Colors.transparent,
               animationCurve: Curves.easeInOut,
               animationDuration: Duration(milliseconds: 300),
               onTap: (index) {

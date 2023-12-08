@@ -116,6 +116,20 @@ class DatabaseMethods {
     }
   }
 
+  Future<String?> getUrlImage(String idUser) async {
+    try {
+      final storageUserRef = FirebaseStorage.instance
+          .ref()
+          .child('user_images/profile_images/${idUser}');
+      final urlStorageUser = await storageUserRef.getDownloadURL();
+
+      return urlStorageUser;
+    } catch (e) {
+      print('Erro ao obter URL da imagem: $e');
+      return null; // Retorna null se não conseguir obter a URL da imagem
+    }
+  }
+
 // Exemplo de uso:
   void main() async {
     String? userName = await getUserName();

@@ -361,7 +361,7 @@ class _Config extends State<Config> {
                               Text(
                                 'Alterar senha',
                                 style: TextStyle(
-                                  color: Color.fromARGB(201, 82, 82, 82),
+                                  color: Color.fromARGB(200, 58, 58, 58),
                                   fontFamily: 'inter',
                                   fontSize: 17,
                                 ),
@@ -397,7 +397,7 @@ class _Config extends State<Config> {
                               Text(
                                 _isEditing ? 'Salvar' : 'Editar',
                                 style: const TextStyle(
-                                  color: Color.fromARGB(201, 82, 82, 82),
+                                  color: Color.fromARGB(200, 58, 58, 58),
                                   fontFamily: 'inter',
                                   fontSize: 18,
                                 ),

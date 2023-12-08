@@ -1,4 +1,5 @@
 import 'package:aaz_servicos/models/chatModel.dart';
+import 'package:aaz_servicos/models/database.dart';
 import 'package:aaz_servicos/pages/Chat/chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -86,54 +87,60 @@ class _ChatScreenState extends State<ChatScreen> {
                         );
                       } else {
                         String? servicoFinalizado = chat.servFinalizado;
-
                         return ListTile(
-                          leading: Stack(
+                          leading: Container(
+                            width: 60, // Largura total do conteúdo do leading
+                            child: Row(
+                              children: [
+                                FutureBuilder<String?>(
+                                  future: getImageProfile(index),
+                                  builder: (context, imageSnapshot) {
+                                    if (imageSnapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return CircularProgressIndicator();
+                                    } else {
+                                      final String? imageUrlPerfil =
+                                          imageSnapshot.data;
+                                      return imageUrlPerfil != null
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                              child: Image.network(
+                                                imageUrlPerfil,
+                                                fit: BoxFit.cover,
+                                                width: 45,
+                                                height: 45,
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.account_circle,
+                                              size: 45,
+                                            );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                          title: Row(
                             children: [
-                              FutureBuilder<String?>(
-                                future: getImageProfile(index),
-                                builder: (context, imageSnapshot) {
-                                  if (imageSnapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return CircularProgressIndicator();
-                                  } else {
-                                    final String? imageUrlPerfil =
-                                        imageSnapshot.data;
-                                    return imageUrlPerfil != null
-                                        ? ClipRRect(
-                                            borderRadius:
-                                                BorderRadius.circular(75),
-                                            child: Image.network(
-                                              imageUrlPerfil,
-                                              fit: BoxFit.cover,
-                                              width: 45,
-                                              height: 45,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.account_circle,
-                                            size: 45,
-                                          );
-                                  }
-                                },
-                              ),
-                              if (servicoFinalizado == 'C')
-                                Positioned(
-                                  top: 0,
-                                  right: 0,
-                                  child: Icon(
-                                    Icons.check_circle,
-                                    color: Color.fromARGB(200, 244, 67, 54),
-                                    size: 20,
+                              Expanded(
+                                child: Text(
+                                  '${snapshot.data}',
+                                  style: TextStyle(
+                                    fontSize: 18,
                                   ),
                                 ),
+                              ),
+
+                              Icon(
+                                Icons.circle,
+                                size: 15,
+                                color: chat.servFinalizado == 'C'
+                                    ? Color.fromARGB(255, 214, 79, 79)
+                                    : Color.fromARGB(255, 130, 189, 140),
+                              ), // Substitua "your_icon_here" pelo ícone desejado
                             ],
-                          ),
-                          title: Text(
-                            '${snapshot.data}',
-                            style: TextStyle(
-                              fontSize: 18,
-                            ),
                           ),
                           onTap: () {
                             if (servicoFinalizado != 'C') {
@@ -227,10 +234,12 @@ class _ChatScreenState extends State<ChatScreen> {
       Map<String, dynamic> chatData =
           chatSnapshot.data() as Map<String, dynamic>;
 
-      if (tipoUsuario == 'Ofertante') {
-        imageUrlPerfil = chatData['ContratanteImage'];
+      if (tipoUsuario == 'ofertante') {
+        String idUser = chatData['idContratante'];
+        imageUrlPerfil = await DatabaseMethods().getUrlImage(idUser);
       } else {
-        imageUrlPerfil = chatData['OfertanteImage'];
+        String idUser = chatData['idOfertante'];
+        imageUrlPerfil = await DatabaseMethods().getUrlImage(idUser);
       }
 
       return imageUrlPerfil;

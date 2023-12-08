@@ -1,13 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class FeedbackCard extends StatelessWidget {
+class FeedbackCard extends StatefulWidget {
   final List<Map<String, dynamic>> feedbackList;
 
   FeedbackCard({required this.feedbackList});
 
   @override
+  _FeedbackCardState createState() => _FeedbackCardState();
+}
+
+class _FeedbackCardState extends State<FeedbackCard> {
+  bool showAllFeedbacks = false;
+
+  @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> displayedFeedbacks = showAllFeedbacks
+        ? widget.feedbackList
+        : (widget.feedbackList.isNotEmpty
+            ? widget.feedbackList.sublist(widget.feedbackList.length - 1)
+            : []);
+
     return Container(
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
@@ -56,10 +69,10 @@ class FeedbackCard extends StatelessWidget {
             const SizedBox(
               height: 5,
             ),
-            if (feedbackList.isNotEmpty)
+            if (widget.feedbackList.isNotEmpty)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: feedbackList.map((feedback) {
+                children: displayedFeedbacks.map((feedback) {
                   return Padding(
                     padding: const EdgeInsets.only(top: 3, left: 20, right: 20),
                     child: FutureBuilder<String?>(
@@ -87,7 +100,7 @@ class FeedbackCard extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    '${usuarioNome ?? ''}', // Trate o valor nulo aqui
+                                    '${usuarioNome ?? ''}',
                                     style: const TextStyle(
                                       color: Color.fromARGB(207, 248, 246, 246),
                                       fontSize: 15,
@@ -140,9 +153,9 @@ class FeedbackCard extends StatelessWidget {
           content: Container(
             width: double.maxFinite,
             child: ListView.builder(
-              itemCount: feedbackList.length,
+              itemCount: widget.feedbackList.length,
               itemBuilder: (context, index) {
-                final feedback = feedbackList[index];
+                final feedback = widget.feedbackList[index];
                 return Padding(
                   padding: const EdgeInsets.all(10),
                   child: Column(
