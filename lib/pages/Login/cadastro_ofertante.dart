@@ -70,22 +70,6 @@ class _CadastroOfer extends State<CadastroOfer> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 50, left: 330),
-            child: IconButton(
-              iconSize: 40,
-              icon: const Icon(Icons.arrow_back),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const Cadastro(),
-                  ),
-                );
-              },
-            ),
-          ),
-          Padding(
             padding: const EdgeInsets.only(top: 200.0),
             child: Container(
               decoration: const BoxDecoration(

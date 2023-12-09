@@ -152,6 +152,9 @@ class _perfilprofissional extends State<perfilprofissional> {
                           }
                         },
                       ),
+                      const SizedBox(
+                        height: 4,
+                      ),
                       Text('$servico'),
                       const SizedBox(
                         height: 4,
@@ -164,7 +167,9 @@ class _perfilprofissional extends State<perfilprofissional> {
                       const SizedBox(
                         height: 4,
                       ),
-                      Text('Contratações - $cont'),
+                      Text(
+                        'Contratos: ${cont ?? '0'}',
+                      ),
                     ],
                   ),
                 ),
@@ -438,7 +443,7 @@ class _perfilprofissional extends State<perfilprofissional> {
       if (data != null) {
         setState(() {
           descricao = data['descricao'] as String?;
-          cont = data['quantidade'] as int?;
+          cont = data['quantidade'] as int? ?? 0;
           print("teste$cont");
         });
       }

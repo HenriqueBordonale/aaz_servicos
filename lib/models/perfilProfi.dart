@@ -9,10 +9,18 @@ class Perfil {
 
   Future<String?> createPerfil(String idServico, String descricao, String nome,
       String categoria, String especificacao) async {
+    descricao ?? 'Escreva uma descrição';
     final storageRef = FirebaseStorage.instance
         .ref()
         .child('user_images/profile_images/${idofer}');
-    final urlStorageOfer = await storageRef.getDownloadURL();
+
+    String urlStorageOfer;
+    try {
+      urlStorageOfer = await storageRef.getDownloadURL();
+    } catch (e) {
+      // Se ocorrer uma exceção, define urlStorageOfer como uma string vazia
+      urlStorageOfer = '';
+    }
 
     final userDocRef =
         FirebaseFirestore.instance.collection('user').doc(idofer);
@@ -53,8 +61,13 @@ class Perfil {
     final storageRef = FirebaseStorage.instance
         .ref()
         .child('user_images/profile_images/${idofer}');
-    final urlStorageOfer = await storageRef.getDownloadURL();
-
+    String urlStorageOfer;
+    try {
+      urlStorageOfer = await storageRef.getDownloadURL();
+    } catch (e) {
+      // Se ocorrer uma exceção, define urlStorageOfer como uma string vazia
+      urlStorageOfer = '';
+    }
     final perfilDocRef =
         FirebaseFirestore.instance.collection('perfis').doc(idPerfil);
 

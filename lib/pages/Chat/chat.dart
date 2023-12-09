@@ -201,7 +201,7 @@ class _ChatDetailScreenState extends State<ChatDetailScreen> {
                     isCurrentUser: isCurrentUser,
                   );
                 } else {
-                  return Container(); // Tratamento para mensagens inválidas
+                  return Container();
                 }
               },
             );
